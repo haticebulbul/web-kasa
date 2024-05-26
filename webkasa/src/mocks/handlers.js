@@ -35,7 +35,7 @@ export const handlers = [
       
         const users = [
           { kullaniciKodu: 123, sifre: 'hatice' },
-          { kullaniciKodu: 456, sifre: 'baran' }, // Kullanıcı kodlarını string yapın
+          { kullaniciKodu: 456, sifre: 'barancan' }, // Kullanıcı kodlarını string yapın
         ];
       
         const isValidUser = users.some(
@@ -49,5 +49,6 @@ export const handlers = [
         }
       }),
    
+
 
 ]
