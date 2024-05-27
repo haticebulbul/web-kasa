@@ -8,16 +8,20 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Giriş durumunu takip etmek için state ekledik
 
   return (
-    <BrowserRouter>
+   
+      // <Routes>
+      //   <Route path="/" element={
+      //     isLoggedIn ? <Navigate to="/anaekran" /> : <Login setIsLoggedIn={setIsLoggedIn} /> 
+      //   } />
+      //   <Route path="/anaekran" element={
+      //     isLoggedIn ? <AnaEkran /> : <Navigate to="/" />
+      //   } />
+      // </Routes>
       <Routes>
-        <Route path="/" element={
-          isLoggedIn ? <Navigate to="/anaekran" /> : <Login setIsLoggedIn={setIsLoggedIn} /> 
-        } />
-        <Route path="/anaekran" element={
-          isLoggedIn ? <AnaEkran /> : <Navigate to="/" />
-        } />
+        <Route path='/' element={<Login/>} />
+        <Route path='/AnaEkran' element={<AnaEkran/>} />
       </Routes>
-    </BrowserRouter>
+   
   );
 }
 

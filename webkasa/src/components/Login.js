@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
 import {Box,Grid ,Typography,FormControl,OutlinedInput,InputAdornment,Button,InputLabel} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
-import  { useRef } from "react"; // useRef'yi içe aktarır
+import React, { useState, useRef ,useEffect} from 'react';
 import ReactDOM from "react-dom"; // ReactDOM'u içe aktarır
-// Import your MSW worker
 import { worker } from '../mocks/browser';
 import '../App.css'; 
 import Visibility from '@mui/icons-material/Visibility';
@@ -12,7 +10,10 @@ import IconButton from '@mui/material/IconButton';
 import Keyboard from "react-simple-keyboard";
 import { Dialog,Select, MenuItem,DialogTitle, DialogContent } from '@mui/material';
 import 'react-simple-keyboard/build/css/index.css';
-
+import KeyboardIcon from '@mui/icons-material/Keyboard';
+import layout from "simple-keyboard-layouts/build/layouts/turkish";
+import turkishLayout from "simple-keyboard-layouts/build/layouts/turkish";
+import englishLayout from "simple-keyboard-layouts/build/layouts/english";
 
 export const Login = ({ onSuccessfulLogin }) => {
  
@@ -21,17 +22,17 @@ export const Login = ({ onSuccessfulLogin }) => {
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState("default");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false); // Klavyenin görünürlüğünü tutan durum değişkeni
-  const keyboard = useRef();
+  const inputKeyboard = useRef(null);
+  const passwordKeyboard = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false); //Kullanıcı kodu 
   const [isModalOpen2, setIsModalOpen2] = useState(false); // Şifre için modal
   const [password, setPassword] = useState('');
   const [layoutName, setLayoutName] = useState('default'); // Varsayılan düzen
   const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState('tr'); // Varsayılan dil Türkçe
- 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     // Start the worker *before* fetching:
     worker.start().then(() => { 
@@ -44,62 +45,7 @@ export const Login = ({ onSuccessfulLogin }) => {
     return () => worker.stop(); 
   }, []); 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
 
-  //   try {
-  //     const response = await fetch('/api/login', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ kullaniciKodu, sifre }),
-  //     });
-
-  //     if (response.ok) {
-  //       onSuccessfulLogin(); // Anasayfaya yönlendirme
-  //     } else {
-  //       const data = await response.json();
-  //       setHataMesaji(data.message);
-  //     }
-  //   } catch (error) {
-  //     setHataMesaji('Bir hata oluştu.');
-  //   }
-  // };
-
-  // return (
-  //   <form onSubmit={handleSubmit}>
-  //     {/* ... input alanları ... */}
-  //     <button type="submit">Giriş Yap</button>
-  //     {hataMesaji && <p>{hataMesaji}</p>}
-  //   </form>
-  // );
-
-
-  // const handleClick = async () => { 
-  //   const navigate = useNavigate(); // React Router'ın navigate hook'unu kullanıyoruz
-  //   try {
-  //     await worker.start();
-  //     const response = await fetch('/login', {
-  //         method: 'POST',
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({ usernumber: 123, password: 'testpassword' }),
-  //     });
-  
-  //     if (!response.ok) { 
-  //       throw new Error('Login failed');
-  //     }
-  
-  //     const data = await response.json();
-  //     setLogin(data);  
-  
-  //     // Giriş başarılıysa yönlendirme
-  //     navigate('/AnaEkran'); // veya gitmek istediğiniz sayfa yolu
-  //   } catch (error) { 
-  //     console.error('Error logging in:', error);
-  //     // Hata durumunda yönlendirme veya hata mesajı gösterme gibi işlemler yapabilirsiniz
-  //   }
-  // };
 
   const loginekran = async () => {
     setIsLoading(true);
@@ -131,20 +77,6 @@ export const Login = ({ onSuccessfulLogin }) => {
 
 
 
-// const loginekran = async ()=>{
-// const response =await fetch ("/login",{
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-//   body: JSON.stringify({kullaniciKodu: input, sifre: password}),
-// });
-// console.log(response)
-// };
-
-
-
-
 
  const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
@@ -156,19 +88,32 @@ export const Login = ({ onSuccessfulLogin }) => {
     setLayout(newLayoutName);
   };
 
-  const onKeyPress = button => {
-    console.log("Button pressed", button);
-
-    if (button === "{shift}" || button === "{lock}") handleShift();
-  };
-
-  const onChangeInput = event => {
-    const input = event.target.value;
-    setInput(input);
-    keyboard.current.setInput(input);
-  };
-
  
+  const onInputKeyPress = (button) => {
+    if (button === "{enter}") {
+      closeKeyboard();
+    }
+  };
+
+  const onPasswordKeyPress = (button) => {
+    if (button === "{enter}") {
+      closeKeyboard2();
+    }
+  };
+
+  const onChangeInput = (event) => {
+    setInput(event.target.value);
+    if (inputKeyboard.current) {
+      inputKeyboard.current.setInput(event.target.value);
+    }
+  };
+
+  const onChangePassword = (input) => {
+    setPassword(input);
+    if (passwordKeyboard.current) {
+      passwordKeyboard.current.setInput(input);
+    }
+  };
 
   const openKeyboard = () => {
     setIsModalOpen(true); // Modal'ı aç
@@ -194,22 +139,17 @@ export const Login = ({ onSuccessfulLogin }) => {
     event.preventDefault();
   };
 
-  const onChange = (inputFromKeyboard) => {
-    if (isModalOpen) { // Eğer kullanıcı kodu modal'ı açıksa
-      setInput(inputFromKeyboard);
-    } else if (isModalOpen2) { // Eğer şifre modal'ı açıksa
-      setPassword(inputFromKeyboard);
-    }
-    console.log("Input changed", inputFromKeyboard);
+  const onChange = (input) => {
+    setInput(input);
   };
   
-  const handleLayoutChange = (event) => {
-    setLayoutName(event.target.value);
+   
+  const getKeyboardLayout = () => {
+    return language === "tr" ? turkishLayout : englishLayout;
   };
 
-
   return (
-  <Box bgcolor='#B0BEC5'height="113vh" width="100vw"  >
+  <Box height="113vh" width="100vw"  >
    
     <Grid container spacing={12} justifyContent='center' alignItems='center'  >
        <Grid item xs={12} sm={4} container justifyContent="flex-end" alignItems='center'> 
@@ -220,11 +160,9 @@ export const Login = ({ onSuccessfulLogin }) => {
     <Typography variant='h5'  marginTop={20}>Hoşgeldiniz!</Typography>
     
     <Typography marginTop={5}>Lütfen kullanıcı kodu ve şifrenizi giriniz.</Typography>
-
-    <form noValidate autoComplete="off">
+     <form noValidate autoComplete="off">
       <FormControl
         sx={{ width: '100%', border: '2px solid black', borderRadius: '8px', marginBottom: '10px' }}
-        onClick={openKeyboard} // Form elemanına tıklanınca klavyeyi aç
       >
         <OutlinedInput
           value={input}
@@ -232,6 +170,13 @@ export const Login = ({ onSuccessfulLogin }) => {
           startAdornment={
             <InputAdornment position="start">
               <PersonIcon />
+            </InputAdornment>
+          }
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton onClick={openKeyboard}>
+                <KeyboardIcon />
+              </IconButton>
             </InputAdornment>
           }
           sx={{
@@ -248,60 +193,56 @@ export const Login = ({ onSuccessfulLogin }) => {
       <Dialog open={isModalOpen} onClose={closeKeyboard}>
         <DialogTitle>Kullanıcı kodunuzu giriniz</DialogTitle>
         <DialogContent>
-          <FormControl         sx={{ width: '100%', border: '2px solid black', borderRadius: '8px', marginBottom: '10px' }}>
-<OutlinedInput
-          value={input}
-          placeholder="Kullanıcı Kodu"
-          startAdornment={
-            <InputAdornment position="start">
-              <PersonIcon />
-            </InputAdornment>
-          }
-          sx={{
-            '&:hover': {
-              borderColor: 'black',
-            },
-            '&:focus': {
-              borderColor: 'black',
-            },
-          }}
-          onChange={onChangeInput}
-        />
+          <FormControl sx={{ width: '100%', border: '2px solid black', borderRadius: '8px', marginBottom: '10px' }}>
+            <OutlinedInput
+              value={input}
+              placeholder="Kullanıcı Kodu"
+              startAdornment={
+                <InputAdornment position="start">
+                  <PersonIcon />
+                </InputAdornment>
+              }
+              
+              sx={{
+                '&:hover': {
+                  borderColor: 'black',
+                },
+                '&:focus': {
+                  borderColor: 'black',
+                },
+              }}
+              onChange={onChangeInput}
+            />
           </FormControl>
           <FormControl>
-        <InputLabel id="language-select-label">Dil Seçin</InputLabel>
-        <Select
-          labelId="language-select-label"
-          value={language}
-          onChange={handleLanguageChange}
-        >
-          <MenuItem value="tr">Türkçe</MenuItem>
-          <MenuItem value="en">İngilizce</MenuItem>
-        </Select>
-      </FormControl>
-      <Keyboard
-  keyboardRef={r => (keyboard.current = r)}
-  layoutName={layout ? layoutName : "default"} // Varsayılan düzen kullan
-  onChange={onChange}
-  onKeyPress={onKeyPress}
-/>
+            <InputLabel id="language-select-label">Dil Seçin</InputLabel>
+            <Select
+              labelId="language-select-label"
+              value={language}
+              onChange={handleLanguageChange}
+            >
+              <MenuItem value="tr">Türkçe</MenuItem>
+              <MenuItem value="en">İngilizce</MenuItem>
+            </Select>
+          </FormControl>
+          <Keyboard
+         keyboardRef={r => (inputKeyboard.current = r)}
+         layoutName={layoutName}
+         onChange={(input) => setInput(input)}
+         onKeyPress={onInputKeyPress}
+         {...getKeyboardLayout()}
+          />
         </DialogContent>
       </Dialog>
     </form>
-    {isKeyboardVisible && ( // Klavye görünürse
-      <Keyboard
-        keyboardRef={r => (keyboard.current = r)}
-        layoutName={layout}
-        onChange={onChange}
-        onKeyPress={onKeyPress}
-      />
-    )}
 
+
+    
 <form noValidate autoComplete="off" >
     <FormControl 
     sx={{ width:'100%' ,border:  '2px solid black', borderRadius: '8px', marginBottom:'20px'}}
    
-   onClick={openKeyboard2}>
+>
         <OutlinedInput
         value={password}
         placeholder="Şifre"
@@ -319,6 +260,13 @@ export const Login = ({ onSuccessfulLogin }) => {
             </IconButton>
           </InputAdornment>
         }
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton onClick={openKeyboard2}>
+              <KeyboardIcon />
+            </IconButton>
+          </InputAdornment>
+        }
         onChange={(e) => setPassword(e.target.value)} 
       />
     </FormControl>
@@ -326,7 +274,7 @@ export const Login = ({ onSuccessfulLogin }) => {
         <DialogTitle>Şifrenizi giriniz</DialogTitle>
         <DialogContent>
           <FormControl     sx={{ width:'100%' ,border:  '2px solid black', borderRadius: '8px', marginBottom:'20px'}}
- onClick={openKeyboard2}>
+ >
             <OutlinedInput
               value={password}
               placeholder="Şifre"
@@ -344,14 +292,27 @@ export const Login = ({ onSuccessfulLogin }) => {
                   </IconButton>
                 </InputAdornment>
               }
+              
               onChange={(e) => setPassword(e.target.value)} 
             />
           </FormControl>
+          <FormControl>
+            <InputLabel id="language-select-label">Dil Seçin</InputLabel>
+            <Select
+              labelId="language-select-label"
+              value={language}
+              onChange={handleLanguageChange}
+            >
+              <MenuItem value="tr">Türkçe</MenuItem>
+              <MenuItem value="en">İngilizce</MenuItem>
+            </Select>
+          </FormControl>
           <Keyboard
-            keyboardRef={r => (keyboard.current = r)}
-            layoutName={layout}
-            onChange={onChange}
-            onKeyPress={onKeyPress}
+              keyboardRef={r => (passwordKeyboard.current = r)}
+              layoutName={layout}
+              onChange={onChangePassword}
+              onKeyPress={onPasswordKeyPress}
+              {...getKeyboardLayout()}
           />
         </DialogContent>
       </Dialog>
