@@ -15,8 +15,9 @@ import layout from "simple-keyboard-layouts/build/layouts/turkish";
 import turkishLayout from "simple-keyboard-layouts/build/layouts/turkish";
 import englishLayout from "simple-keyboard-layouts/build/layouts/english";
 
-export const Login = ({ onSuccessfulLogin }) => {
- 
+
+export const Login = () => {
+  
   const [version, setVersion] = useState('');
   const [login, setLogin] = useState('');
   const [input, setInput] = useState("");
@@ -32,22 +33,22 @@ export const Login = ({ onSuccessfulLogin }) => {
   const [language, setLanguage] = useState('tr'); // Varsayılan dil Türkçe
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  
   useEffect(() => {
-    // Start the worker *before* fetching:
+   
     worker.start().then(() => { 
       fetch('/version')
         .then(response => response.json())
         .then(data => setVersion(data.version));
     });
-
-    // Optional: Stop worker when component unmounts
     return () => worker.stop(); 
   }, []); 
 
 
+  
 
   const loginekran = async () => {
+
     setIsLoading(true);
     setError(null);
 
@@ -56,17 +57,19 @@ export const Login = ({ onSuccessfulLogin }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          kullaniciKodu: input, // input değişkenini doğrudan kullan
+          kullaniciKodu: String(input), 
           sifre: password
         }),
       });
-
+// debugger
       if (response.ok) {
-        // Başarılı giriş, yönlendirme
-        onSuccessfulLogin(); 
+        const userData = await response.json();
+        localStorage.setItem('user', userData); // Kullanıcıyı sakla
+        console.log(userData)
+        window.location.href = '/anaekran';
+    
       } else {
-        const data = await response.json(); 
-        setError(data.message || 'Giriş başarısız.'); 
+        setError('Kullanıcı adı veya şifre hatalı.');
       }
     } catch (error) {
       setError('Sunucuya bağlanırken hata oluştu.');
@@ -74,7 +77,6 @@ export const Login = ({ onSuccessfulLogin }) => {
       setIsLoading(false);
     }
   };
-
 
 
 
@@ -191,7 +193,21 @@ export const Login = ({ onSuccessfulLogin }) => {
         />
       </FormControl>
       <Dialog open={isModalOpen} onClose={closeKeyboard}>
-        <DialogTitle>Kullanıcı kodunuzu giriniz</DialogTitle>
+      <DialogTitle>
+      Kullanıcı kodunuzu giriniz
+      <FormControl style={{ float: 'right', marginRight: '16px', marginTop: '-8px' }}>
+        <InputLabel id="language-select-label">Dil Seçin</InputLabel>
+        <Select
+          labelId="language-select-label"
+          value={language}
+          onChange={handleLanguageChange}
+        >
+          <MenuItem value="tr">Türkçe</MenuItem>
+          <MenuItem value="en">İngilizce</MenuItem>
+        </Select>
+      </FormControl>
+    </DialogTitle>
+      
         <DialogContent>
           <FormControl sx={{ width: '100%', border: '2px solid black', borderRadius: '8px', marginBottom: '10px' }}>
             <OutlinedInput
@@ -213,17 +229,7 @@ export const Login = ({ onSuccessfulLogin }) => {
               }}
               onChange={onChangeInput}
             />
-          </FormControl>
-          <FormControl>
-            <InputLabel id="language-select-label">Dil Seçin</InputLabel>
-            <Select
-              labelId="language-select-label"
-              value={language}
-              onChange={handleLanguageChange}
-            >
-              <MenuItem value="tr">Türkçe</MenuItem>
-              <MenuItem value="en">İngilizce</MenuItem>
-            </Select>
+          
           </FormControl>
           <Keyboard
          keyboardRef={r => (inputKeyboard.current = r)}
@@ -271,7 +277,19 @@ export const Login = ({ onSuccessfulLogin }) => {
       />
     </FormControl>
     <Dialog open={isModalOpen2} onClose={closeKeyboard2}>
-        <DialogTitle>Şifrenizi giriniz</DialogTitle>
+        <DialogTitle>Şifrenizi giriniz
+        <FormControl style={{ float: 'right', marginRight: '16px', marginTop: '-8px' }}>
+        <InputLabel id="language-select-label">Dil Seçin</InputLabel>
+        <Select
+          labelId="language-select-label"
+          value={language}
+          onChange={handleLanguageChange}
+        >
+          <MenuItem value="tr">Türkçe</MenuItem>
+          <MenuItem value="en">İngilizce</MenuItem>
+        </Select>
+      </FormControl>
+        </DialogTitle>
         <DialogContent>
           <FormControl     sx={{ width:'100%' ,border:  '2px solid black', borderRadius: '8px', marginBottom:'20px'}}
  >
@@ -296,17 +314,7 @@ export const Login = ({ onSuccessfulLogin }) => {
               onChange={(e) => setPassword(e.target.value)} 
             />
           </FormControl>
-          <FormControl>
-            <InputLabel id="language-select-label">Dil Seçin</InputLabel>
-            <Select
-              labelId="language-select-label"
-              value={language}
-              onChange={handleLanguageChange}
-            >
-              <MenuItem value="tr">Türkçe</MenuItem>
-              <MenuItem value="en">İngilizce</MenuItem>
-            </Select>
-          </FormControl>
+        
           <Keyboard
               keyboardRef={r => (passwordKeyboard.current = r)}
               layoutName={layout}
