@@ -16,6 +16,7 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "react-simple-keyboard": "^3.7.124",
+    "react-swipeable-views": "^0.14.0",
     "simple-keyboard-layouts": "^3.3.105",
     "web-vitals": "^2.1.4"
   },

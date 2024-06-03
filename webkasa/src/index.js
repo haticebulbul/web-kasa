@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
+import { ViewProvider } from './context/View';
 
 async function enableMocking() {
   if (process.env.NODE_ENV !== 'development') {
@@ -18,7 +19,10 @@ async function enableMocking() {
   const root = ReactDOM.createRoot(document.getElementById('root'));
   root.render(
     <BrowserRouter>
+    <ViewProvider> 
       <App /> 
+      </ViewProvider>
+     
     </BrowserRouter>
   );
  });

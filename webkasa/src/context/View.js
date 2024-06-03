@@ -1,3 +1,93 @@
+
+import React, { createContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { navigate } from 'react-router-dom';
+
+const ViewContext = createContext();
+
+export const ViewProvider = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [version, setVersion] = useState('');
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
+  const handleDrawerOpen = () => {
+    setIsOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setIsOpen(false);
+  };
+
+  const fetchVersionFromMockService = async () => {
+    const mockApiResponse = await fetch('/version');
+    const versionData = await mockApiResponse.json();
+    setVersion(versionData.version);
+  };
+
+  const fetchUserData = () => {
+    const storedUserData = localStorage.getItem('user');
+    if (storedUserData) {
+      const parsedUserData = JSON.parse(storedUserData);
+      setUserData(parsedUserData);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/');
+  };
+
+  return (
+    <ViewContext.Provider
+      value={{
+        isOpen,
+        version,
+        userData,
+        handleDrawerOpen,
+        handleDrawerClose,
+        fetchVersionFromMockService,
+        fetchUserData,
+        handleLogout,
+      }}
+    >
+      {children}
+    </ViewContext.Provider>
+  );
+};
+
+export default ViewContext;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import { createContext } from "react";
 // import { useNavigate } from 'react-router-dom';
 // import { navigate } from 'react-router-dom';
