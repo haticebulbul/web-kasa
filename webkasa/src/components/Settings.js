@@ -1,18 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  IconButton,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Divider,
-  Toolbar,
-  List,
-} from '@mui/material';
+  Box,Card,CardContent,IconButton,ListItem,ListItemButton,ListItemIcon, ListItemText,Typography,Divider,Toolbar,List,Tooltip,Paper,Grid,Container,Menu,ButtonBase} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -20,14 +8,26 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useTheme } from '@mui/material/styles';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LanguageIcon from '@mui/icons-material/Language';
+import { useTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import { useNavigate } from 'react-router-dom';
 import ViewContext from '../context/View';
+import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 
 const drawerWidth = 240;
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  maxWidth: 400,
+  color: theme.palette.text.primary,
+}));
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -74,6 +74,7 @@ const StyledAppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#37474f', // AppBar background color
 }));
 
 const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -94,118 +95,168 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
 );
 
 const Settings = () => {
-  const {
-    isOpen,
-    version,
-    userData,
-    handleDrawerOpen,
-    handleDrawerClose,
-    handleLogout,
-  } = useContext(ViewContext);
-
-  const theme = useTheme();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { isOpen, version, userData, handleDrawerOpen, handleDrawerClose, handleLogout } = useContext(ViewContext);
+  const { theme, toggleTheme } = useContext(TemaContext);
+  const currentTheme = theme === 'light' ? lightTheme : darkTheme;
+  const muiTheme = useTheme();
+
+  const handleLanguageClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [dropDown, setDropDown] = useState("");
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <StyledAppBar position="fixed" open={isOpen} sx={{ backgroundColor: '#37474f' }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 2,
-              ...(isOpen && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{
-              flexGrow: 1,
-              textAlign: 'center',
-            }}
-          >
-            Settings
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  Version: {version}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Kullanıcı Kodu: {userData}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        </Toolbar>
-      </StyledAppBar>
+    <MuiThemeProvider theme={currentTheme}>
+      <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}> 
+      <StyledAppBar position="fixed" open={isOpen}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{
+                marginRight: 2,
+                ...(isOpen && { display: 'none' }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                flexGrow: 1,
+                textAlign: 'center',
+              }}
+            >
+              Settings
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary">
+                    Version: {version}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Kullanıcı Kodu: {userData}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          </Toolbar>
+        </StyledAppBar>
 
-      <StyledDrawer variant="permanent" open={isOpen}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {['Anasayfa', 'Ödeme '].map((text, index) => (
-            <ListItem key={text} disablePadding>
+        <StyledDrawer variant="permanent" open={isOpen}>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {muiTheme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>
+            {['Anasayfa', 'Ödeme '].map((text, index) => (
+              <ListItem key={text} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    if (text === 'Anasayfa') {
+                      navigate('/AnaEkran');
+                    } else if (text === 'Ödeme ') {
+                      navigate('/PaymentScreen');
+                    }
+                  }}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#616161',
+                    },
+                  }}
+                >
+                  <ListItemIcon>{index % 2 === 0 ? <HomeIcon /> : <PaymentIcon />}</ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+            <ListItem key="settings" disablePadding>
               <ListItemButton
-                onClick={() => {
-                 
-                 if (text === 'Anasayfa') {
-                    navigate('/AnaEkran');
-                  }else if (text === 'Ödeme ') {
-                    navigate('/PaymentScreen');
-                  }
-                }}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#616161',
-                  },
-                }}
+                onClick={() => navigate('/Settings')}
+                sx={{ '&:hover': { backgroundColor: '#616161' } }}
               >
-                <ListItemIcon>{index % 2 === 0 ? <HomeIcon /> : <PaymentIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Ayarlar" />
               </ListItemButton>
             </ListItem>
-          ))}
-          <ListItem key="settings" disablePadding>
-            <ListItemButton
-              onClick={() => navigate('/Settings')}
-              sx={{ '&:hover': { backgroundColor: '#616161' } }}
-            >
+          </List>
+          <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
+            <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
               <ListItemIcon>
-                <SettingsIcon />
+                <LogoutIcon />
               </ListItemIcon>
-              <ListItemText primary="Ayarlar" />
+              <ListItemText primary="Çıkış Yap" />
             </ListItemButton>
           </ListItem>
-        </List>
-        <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
-          <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
-            <ListItemIcon>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Çıkış Yap" />
-          </ListItemButton>
-        </ListItem>
-      </StyledDrawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Settings content goes here...
-        </Typography>
+        </StyledDrawer>
+        <Box sx={{ flexGrow: 1, p: 2 }}>
+          <Container maxWidth="sm">
+            <Paper
+              component={ButtonBase} onClick={() => setDropDown("show")}
+              sx={{
+                p: 2,
+                margin: 'auto',
+                maxWidth: 500,
+                flexGrow: 1,
+                backgroundColor: (theme) =>
+                  theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+              }}
+            >
+              <Grid container spacing={2}>
+                <Grid item>
+                  <ButtonBase sx={{ width: 128, height: 128 }}>
+                    <LanguageIcon sx={{ fontSize: 64 }} />
+                  </ButtonBase>
+                </Grid>
+                <Grid item xs={12} sm container>
+                  <Grid item xs container direction="column" spacing={2}>
+                    <Grid item xs>
+                      <Typography gutterBottom variant="subtitle1" component="div">
+                        {/* {t('settings.themeSelection')} Use translation key */}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Paper>
+            <Menu open={dropDown === "show"} onClose={() => setDropDown("")}>
+            </Menu>
+          </Container>
+          <Box sx={{ my: 2 }} />
+          <Container maxWidth="sm">
+          <Paper elevation={3} sx={{ p: 2, margin: 'auto', maxWidth: 300 }}>
+              <Grid container alignItems="center" justifyContent="center">
+                <Tooltip title={theme === 'light' ? "Koyu Temaya Geç" : "Açık Temaya Geç"}>
+                  <IconButton onClick={toggleTheme}>
+                    {theme === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+                  </IconButton>
+                </Tooltip>
+
+                <Typography variant="body1" sx={{ mx: 2 }}>
+                  {theme === 'light' ? "Koyu Temaya Geç" : "Açık Temaya Geç"}
+                </Typography>
+              </Grid>
+            </Paper>
+          </Container>
+        </Box>
       </Box>
-    </Box>
+    </MuiThemeProvider>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState ,useContext,useEffect} from 'react'
-import { AppBar,List,Drawer,Toolbar,IconButton,Typography,Stack,Button,Menu,MenuItem, Card,CardContent,Box, Divider } from '@mui/material'
+import { AppBar,List,Drawer,Toolbar,IconButton,Typography,Stack,Button,Menu,MenuItem, Card,CardContent,Box, Divider,Grid,Paper,ButtonBase } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -19,7 +19,8 @@ import { navigate } from 'react-router-dom';
 import  ViewContext from '../context/View'
 import { Login } from './Login';
 import { worker } from '../mocks/browser';
-
+import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
+import {  ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -67,6 +68,8 @@ const StyledAppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#37474f', 
+
 }));
 
 const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -98,7 +101,9 @@ const PaymentScreen = () => {
     handleLogout,
   } = useContext(ViewContext);
 
-  const theme = useTheme();
+  const { theme } = useContext(TemaContext);
+  const currentTheme = theme === 'light' ? lightTheme : darkTheme;
+  const muiTheme = useTheme(); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -107,8 +112,10 @@ const PaymentScreen = () => {
   }, []);
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <StyledAppBar position="fixed" open={isOpen} sx={{ backgroundColor: '#37474f' }}>
+    <MuiThemeProvider theme={currentTheme}>
+
+<Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}> 
+<StyledAppBar position="fixed" open={isOpen}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -203,6 +210,7 @@ const PaymentScreen = () => {
       
       </Box>
     </Box>
+    </MuiThemeProvider>
   );
 };
 
