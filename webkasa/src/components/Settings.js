@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import PaymentIcon from '@mui/icons-material/Payment';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -163,27 +164,31 @@ const Settings = () => {
           </DrawerHeader>
           <Divider />
           <List>
-            {['Anasayfa', 'Ödeme '].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    if (text === 'Anasayfa') {
-                      navigate('/AnaEkran');
-                    } else if (text === 'Ödeme ') {
-                      navigate('/PaymentScreen');
-                    }
-                  }}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: '#616161',
-                    },
-                  }}
-                >
-                  <ListItemIcon>{index % 2 === 0 ? <HomeIcon /> : <PaymentIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
+          {['Anasayfa', 'Ödeme', 'Satış'].map((text, index) => (
+  <ListItem key={text} disablePadding>
+    <ListItemButton
+      onClick={() => {
+        if (text === 'Anasayfa') {
+          navigate('/AnaEkran');
+        } else if (text === 'Ödeme') {
+          navigate('/PaymentScreen');
+        } else if (text === 'Satış') {
+          navigate('/SaleScreen');
+        }
+      }}
+      sx={{
+        '&:hover': {
+          backgroundColor: '#616161',
+        },
+      }}
+    >
+      <ListItemIcon>
+        {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : <PointOfSaleIcon />}
+      </ListItemIcon>
+      <ListItemText primary={text} />
+    </ListItemButton>
+  </ListItem>
+))}
             <ListItem key="settings" disablePadding>
               <ListItemButton
                 onClick={() => navigate('/Settings')}

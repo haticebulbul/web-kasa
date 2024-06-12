@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { AppBar, List, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider } from '@mui/material'
+import { AppBar, List, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, CardActionArea,Box, Divider } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -12,6 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
 import PaymentIcon from '@mui/icons-material/Payment';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
@@ -27,8 +28,11 @@ import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-
-
+import StoreIcon from '@mui/icons-material/Store';
+import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
+import KitchenIcon from '@mui/icons-material/Kitchen';
+import CheckroomIcon from '@mui/icons-material/Checkroom';
+import BookIcon from '@mui/icons-material/Book';
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const drawerWidth = 240; 
@@ -92,43 +96,43 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
     }),
   }),
 );
-const images = [
-  {
-    label: 'San Francisco – Oakland Bay Bridge, United States',
-    imgPath:
-      'https://images.unsplash.com/photo-1537944434965-cf4679d1a598?auto=format&fit=crop&w=400&h=250&q=60',
-  },
-  {
-    label: 'Bird',
-    imgPath:
-      'https://images.unsplash.com/photo-1538032746644-0212e812a9e7?auto=format&fit=crop&w=400&h=250&q=60',
-  },
-  {
-    label: 'Bali, Indonesia',
-    imgPath:
-      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&h=250',
-  },
-  {
-    label: 'Goč, Serbia',
-    imgPath:
-      'https://images.unsplash.com/photo-1512341689857-198e7e2f3ca8?auto=format&fit=crop&w=400&h=250&q=60',
-  },
-];
+// const images = [
+//   {
+//     label: 'San Francisco – Oakland Bay Bridge, United States',
+//     imgPath:
+//       'https://images.unsplash.com/photo-1537944434965-cf4679d1a598?auto=format&fit=crop&w=400&h=250&q=60',
+//   },
+//   {
+//     label: 'Bird',
+//     imgPath:
+//       'https://images.unsplash.com/photo-1538032746644-0212e812a9e7?auto=format&fit=crop&w=400&h=250&q=60',
+//   },
+//   {
+//     label: 'Bali, Indonesia',
+//     imgPath:
+//       'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&h=250',
+//   },
+//   {
+//     label: 'Goč, Serbia',
+//     imgPath:
+//       'https://images.unsplash.com/photo-1512341689857-198e7e2f3ca8?auto=format&fit=crop&w=400&h=250&q=60',
+//   },
+// ];
 export const AnaEkran = () => {
 
-  const [activeStep, setActiveStep] = React.useState(0);
-  const maxSteps = images.length;
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+  // const [activeStep, setActiveStep] = React.useState(0);
+  // const maxSteps = images.length;
+  // const handleNext = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  // };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  // const handleBack = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  // };
 
-  const handleStepChange = (step) => {
-    setActiveStep(step);
-  };
+  // const handleStepChange = (step) => {
+  //   setActiveStep(step);
+  // };
 
   const {
     isOpen,
@@ -206,35 +210,32 @@ export const AnaEkran = () => {
           </DrawerHeader>
           <Divider />
           <List>
-            {['Anasayfa', 'Ödeme '].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton
-                  onClick={() => {
+          {['Anasayfa', 'Ödeme', 'Satış'].map((text, index) => (
+  <ListItem key={text} disablePadding>
+    <ListItemButton
+      onClick={() => {
+        if (text === 'Anasayfa') {
+          navigate('/AnaEkran');
+        } else if (text === 'Ödeme') {
+          navigate('/PaymentScreen');
+        } else if (text === 'Satış') {
+          navigate('/SaleScreen');
+        }
+      }}
+      sx={{
+        '&:hover': {
+          backgroundColor: '#616161',
+        },
+      }}
+    >
+      <ListItemIcon>
+        {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : <PointOfSaleIcon />}
+      </ListItemIcon>
+      <ListItemText primary={text} />
+    </ListItemButton>
+  </ListItem>
+))}
 
-                    if (text === 'Anasayfa') {
-                      navigate('/AnaEkran');
-                    }
-
-
-                    else if (text === 'Ödeme') {
-                      navigate('/PaymentScreen');
-                    }
-
-                  }}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: '#616161',
-                    },
-                  }}
-                >
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <HomeIcon /> : <PaymentIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-
-            ))}
             <ListItem key="settings" disablePadding>
               <ListItemButton
                 onClick={() => navigate('/Settings')}
@@ -258,10 +259,97 @@ export const AnaEkran = () => {
         </StyledDrawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <DrawerHeader />
-
+ <Stack direction="row" spacing={2}  justifyContent="center"
+  alignItems="center">
+  <Card sx={{ maxWidth: 345 }}>
+  <CardActionArea>
+    <CardContent>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <StoreIcon />
+        <Typography gutterBottom variant="h5" component="div">
+          Market
+        </Typography>
+      </Stack>
+    </CardContent>
+  </CardActionArea>
+</Card>
+    <Card sx={{ maxWidth: 345 }}>
+      <CardActionArea>
+        
+        <CardContent>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <LocalLaundryServiceIcon/>
+          <Typography gutterBottom variant="h5" component="div">
+            Ev & Temizlik
+          </Typography>
+          </Stack>
+        </CardContent>
+      </CardActionArea>
+      
+    </Card>
+    <Card sx={{ maxWidth: 345 }}>
+      <CardActionArea>
+        
+        <CardContent>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <KitchenIcon/>
+          <Typography gutterBottom variant="h5" component="div">
+            Ev & Mutfak Gereçleri 
+          </Typography>
+         </Stack>
+        </CardContent>
+      </CardActionArea>
+      
+    </Card>
+    <Card sx={{ maxWidth: 345 }}>
+      <CardActionArea>
+        
+        <CardContent>
+        <Stack direction="row" spacing={2} alignItems="center">
+<CheckroomIcon/>
+          <Typography gutterBottom variant="h5" component="div">
+           Giyim & Aksesuar
+          </Typography>
+         </Stack>
+        </CardContent>
+      </CardActionArea>
+      
+    </Card>
+    <Card sx={{ maxWidth: 345 }}>
+      <CardActionArea>
+        
+        <CardContent>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <BookIcon/>
+          <Typography gutterBottom variant="h5" component="div">
+           Kitap & Kırtasiye
+          </Typography>
+         </Stack>
+        </CardContent>
+      </CardActionArea>
+      
+    </Card>
+      </Stack>
         </Box>
+    
+   
+   
+  
 
-        <Box sx={{ maxWidth: 400, flexGrow: 1 }}>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {/* <Box sx={{ maxWidth: 400, flexGrow: 1 }}>
           <Paper
             square
             elevation={0}
@@ -329,7 +417,7 @@ export const AnaEkran = () => {
               </Button>
             }
           />
-        </Box>
+        </Box> */}
       </Box>
     </MuiThemeProvider>
 

@@ -10,6 +10,7 @@ import i18next from './i18next';
 import { LanguageProvider } from './context/LanguageContext';
 import { TemaProvider, lightTheme, darkTheme } from './context/Tema'; 
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'; 
+import { ProductProvider } from './context/Products';
 
 async function initializeApp() {
   // 1. Sahte Ortamı Başlat 
@@ -27,9 +28,11 @@ async function initializeApp() {
     <BrowserRouter>
       <ViewProvider>
         <TemaProvider>
+          <ProductProvider>
           <MuiThemeProvider theme={lightTheme}> 
             <App />
           </MuiThemeProvider>
+          </ProductProvider>
         </TemaProvider>
       </ViewProvider>
     </BrowserRouter>
