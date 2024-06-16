@@ -2,9 +2,11 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "axios": "^1.7.2",
     "i18next": "^23.11.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "react-i18next": "^14.1.2",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-simple-keyboard": "^3.7.118"
   }
 }

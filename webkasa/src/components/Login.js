@@ -129,6 +129,12 @@ export const Login = () => {
     return language === "tr" ? turkishLayout : englishLayout;
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      loginekran();
+    }
+  };
+
   return (
     <MuiThemeProvider theme={currentTheme}>
       <Box
@@ -167,6 +173,7 @@ export const Login = () => {
                     </InputAdornment>
                   }
                   onChange={onChangeInput}
+                  onKeyDown={handleKeyDown}
                 />
               </FormControl>
               <Dialog open={isModalOpen} onClose={closeKeyboard}>
@@ -235,6 +242,7 @@ export const Login = () => {
                     </InputAdornment>
                   }
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
                 />
               </FormControl>
               <Dialog open={isModalOpen2} onClose={closeKeyboard2}>
