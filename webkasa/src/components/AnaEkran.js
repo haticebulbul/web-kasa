@@ -33,6 +33,8 @@ import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
 import KitchenIcon from '@mui/icons-material/Kitchen';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import BookIcon from '@mui/icons-material/Book';
+import ProductContext from '../context/Products';
+
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const drawerWidth = 240; 
@@ -133,7 +135,7 @@ export const AnaEkran = () => {
   // const handleStepChange = (step) => {
   //   setActiveStep(step);
   // };
-
+  const {data,isError,isLoading,fetchProducts}=useContext(ProductContext);
   const {
     isOpen,
     version,
@@ -262,7 +264,7 @@ export const AnaEkran = () => {
  <Stack direction="row" spacing={2}  justifyContent="center"
   alignItems="center">
   <Card sx={{ maxWidth: 345 }}>
-  <CardActionArea>
+  <CardActionArea onClick={() => navigate('/products')}>
     <CardContent>
       <Stack direction="row" spacing={2} alignItems="center">
         <StoreIcon />

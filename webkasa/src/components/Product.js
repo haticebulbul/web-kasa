@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import ViewContext from '../context/View';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import ProductContext from '../context/Products';
 
 const drawerWidth = 240;
 
@@ -86,7 +87,6 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
         }),
     })
 );
-
 export const Product = () => {
     const {
         isOpen,
@@ -99,56 +99,19 @@ export const Product = () => {
         handleLogout,
     } = useContext(ViewContext);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(false);
-    const [data, setData] = useState([]);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
     const { theme } = useContext(TemaContext);
     const currentTheme = theme === 'light' ? lightTheme : darkTheme;
     const muiTheme = useTheme();
     const navigate = useNavigate();
+    const { isLoading, filteredData, letters, isError, data, fetchProducts, filterProducts } = useContext(ProductContext);
 
-    const fetchProducts = useCallback(async (pageNum = 1) => {
-        try {
-            setIsLoading(true);
-            setIsError(false);
-            const resPro = await fetch(`/products?page=${pageNum}`);
-            const res = await resPro.json();
-            console.log('Fetched products:', res);
-
-            if (Array.isArray(res)) {
-                const sortedData = [...data, ...res].sort((a, b) => a.name.localeCompare(b.name));
-                setData(sortedData);
-                if (res.length === 0) {
-                    setHasMore(false);
-                }
-            }
-        } catch (err) {
-            console.error('Error fetching products:', err);
-            setIsError(true);
-        } finally {
-            setIsLoading(false);
-            setPage(pageNum);
-        }
-    }, [data]);
-
+  
     useEffect(() => {
         fetchVersionFromMockService();
         fetchUserData();
         fetchProducts(1);
     }, []);
-
-    const handleScroll = useCallback(() => {
-        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading || !hasMore) return;
-        fetchProducts(page + 1);
-    }, [fetchProducts, isLoading, hasMore, page]);
-
-    useEffect(() => {
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [handleScroll]);
-
+   
 
     return (
         <MuiThemeProvider theme={currentTheme}>
@@ -261,11 +224,18 @@ export const Product = () => {
                             }}
                             elevation={7}
                         >
-                            <Stack direction="row" justifyContent="flex-end">
-                                <Button onClick={() => fetchProducts(1)} sx={{ color: 'white' }}>
-                                    Yenile
-                                </Button>
+                            <Stack direction="row" justifyContent="center">
+                                <Button onClick={() => fetchProducts(1)} sx={{ color: 'black' }}>
+Tüm ürünler                                </Button>
                             </Stack>
+                            {/* <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                                
+                                {letters.map((letter) => (
+                                    <Button key={letter} onClick={() => filterProducts(letter)} sx={{ color: 'black', backgroundColor: '#bdbdbd' }}>
+                                        {letter}
+                                    </Button>
+                                ))}
+                            </Stack> */}
                             <Grid container spacing={2} justifyContent="center" alignItems="center">
                                 {isLoading && (
                                     <Typography variant="body1" color="text.secondary">
@@ -287,49 +257,59 @@ export const Product = () => {
                                     data.length > 0 &&
                                     data.map((product) => (
                                         <Grid item key={product.id}>
-                                            <Paper
+                                        <Card
+                                            sx={{
+                                                padding: 2,
+                                                margin: 'auto',
+                                                maxWidth: 500,
+                                                flexGrow: 1,
+                                                backgroundColor: 'background.paper',
+                                                position: 'relative',
+                                                backgroundImage: `url(${product.image})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                height: 300,
+                                                color: 'white',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'flex-end',
+                                            }}
+                                        >
+                                            <Box
                                                 sx={{
-                                                    padding: 2,
-                                                    margin: 'auto',
-                                                    maxWidth: 500,
-                                                    flexGrow: 1,
-                                                    backgroundColor: 'background.paper',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                                    zIndex: 1,
                                                 }}
-                                            >
-                                                <Grid container spacing={2}>
-                                                    <Grid item>
-                                                        <ButtonBase sx={{ width: 128, height: 128 }}>
-                                                            <CardMedia
-                                                                component="img"
-                                                                sx={{ width: 128, height: 128 }}
-                                                                image={product.image}
-                                                                alt={product.name}
-                                                            />
-                                                        </ButtonBase>
-                                                    </Grid>
-                                                    <Grid item xs={12} sm container>
-                                                        <Grid item xs container direction="column" spacing={2}>
-                                                            <Grid item xs>
-                                                                <Typography gutterBottom variant="subtitle1" component="div">
-                                                                    {product.name}
-                                                                </Typography>
-                                                                <Typography variant="body2" gutterBottom>
-                                                                    {product.description}
-                                                                </Typography>
-                                                                <Typography variant="body2" color="text.secondary">
-                                                                    ID: {product.id}
-                                                                </Typography>
-                                                            </Grid>
-                                                            <Grid item>
-                                                                <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                                                                    ${product.price}
-                                                                </Typography>
-                                                            </Grid>
-                                                        </Grid>
-                                                    </Grid>
-                                                </Grid>
-                                            </Paper>
-                                        </Grid>
+                                            />
+                                            <CardContent sx={{ zIndex: 2 }}>
+                                                <Typography gutterBottom variant="h6" component="div">
+                                                    {product.name}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {product.description}
+                                                </Typography>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        mt: 1,
+                                                    }}
+                                                >
+                                                    <Typography variant="body2">
+                                                        ID: {product.id}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        ${product.price}
+                                                    </Typography>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
                                     ))}
                             </Grid>
                         </Paper>

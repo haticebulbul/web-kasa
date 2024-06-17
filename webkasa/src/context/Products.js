@@ -1,69 +1,63 @@
 // import React, { createContext, useState, useRef } from 'react';
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState ,useCallback,useEffect} from 'react';
 
 const ProductContext = createContext(); 
+const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export const ProductProvider = (  {children})=>{
-    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const [data, setData] = useState([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [filteredData, setFilteredData] = useState([]);
+    const fetchProducts = useCallback(async (pageNum = 1) => {
+        try {
+            setIsLoading(true);
+            setIsError(false);
+            const resPro = await fetch(`/products?page=${pageNum}`);
+            const res = await resPro.json();
+            console.log('Fetched products:', res);
 
-    
-    const showAllProducts = ()=>{
-      fetch('/products')
-            .then(response => response.json())
-            .then(data => setProducts(data))
-            .catch(error => console.error('Error fetching products:', error));
-    }
-    const showProductsWithoutBarcodes =()=>{
-        const filteredProducts = products.filter(product => !product.kod);
-        setProducts(filteredProducts);
-    }
+            if (Array.isArray(res)) {
+                const sortedData = [...data, ...res].sort((a, b) => a.name.localeCompare(b.name));
+                setData(sortedData);
+                if (res.length === 0) {
+                    setHasMore(false);
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching products:', err);
+            setIsError(true);
+        } finally {
+            setIsLoading(false);
+            setPage(pageNum);
+        }
+    }, [data]);
+    const handleScroll = useCallback(() => {
+        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading || !hasMore) return;
+        fetchProducts(page + 1);
+    }, [fetchProducts, isLoading, hasMore, page]);
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [handleScroll]);
+    const filterProducts = useCallback((letter) => {
+        if (letter === 'ALL') {
+            setFilteredData(data);
+        } else {
+            const filteredProducts = data.filter(product => product.name.toUpperCase().startsWith(letter));
+            setFilteredData(filteredProducts);
+        }
+    }, [data]);
 return(
-    <ProductContext.Provider value={{showProductsWithoutBarcodes,showAllProducts,products}}>
+    <ProductContext.Provider value={{
+        isLoading,filteredData,letters,isError,
+        data,page,hasMore,fetchProducts,handleScroll,filterProducts}}>
         {children}
     </ProductContext.Provider>
 )
 
 }
 export default ProductContext;
-// const ProductContext = createContext();
-
-// export const ProductProvider = ({ children }) => {
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [isError, setIsError] = useState(false);
-//   const [data, setData] = useState([]);
-//   const [page, setPage] = useState(1);  // Sayfa takibi
-//   const [hasMore, setHasMore] = useState(true);  // Daha fazla veri kontrolü
-
-//   const fetchProducts = async () => {
-//     if (!hasMore || isLoading) return; // Zaten yükleme yapılıyorsa veya daha fazla veri yoksa çıkış yap
-//     try {
-//       setIsLoading(true);
-//       setIsError(false);
-//       const skip = (page - 1) * 5; // Sayfaya göre atlama hesabı
-
-//       const resPro = await fetch(`/products?limit=5&skip=${skip}`);
-//       const res = await resPro.json();
-
-//       if (Array.isArray(res.products) && res.products.length) {
-//         setData(prevData => [...prevData, ...res.products]); // Yeni ürünleri ekle
-//         setHasMore(res.products.length === 5); // Limit kadar veri geldiyse devam et
-//       } else {
-//         setHasMore(false); // Daha fazla veri yoksa durdur
-//       }
-
-//     } catch (err) {
-//       setIsError(true);
-//     } finally {
-//       setIsLoading(false);
-//       setPage(prevPage => prevPage + 1); // Sonraki sayfaya geç
-//     }
-//   };
-
-//   return (
-//     <ProductContext.Provider value={{ fetchProducts, isLoading, isError, data, hasMore }}>
-//       {children}
-//     </ProductContext.Provider>
-//   );
-// };
-
-// export default ProductContext;
