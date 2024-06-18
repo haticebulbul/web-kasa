@@ -1,17 +1,19 @@
-// import React, { createContext, useState, useRef } from 'react';
-import React, { createContext, useState ,useCallback,useEffect} from 'react';
+import React, { createContext, useState, useCallback, useEffect } from 'react';
 
 const ProductContext = createContext(); 
-const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-export const ProductProvider = (  {children})=>{
+export const ProductProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const [data, setData] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [filteredData, setFilteredData] = useState([]);
-    const fetchProducts = useCallback(async (pageNum = 1) => {
+    const [activeCategory, setActiveCategory] = useState('All');
+    const [basket, setBasket] = useState([]);
+
+    const categories = ['All', 'Meyve',"Sebze",'Süt Ürünleri', 'İçecek','Atıştırmalık','Temel Gıda','Fırından','Et Ürünleri','Dondurulmuş Gıda','Dondurma','Hazır Gıda','Kuruyemiş', 'Tatlı',  'Temizlik', 'Kişisel Bakım'];
+
+    const fetchProducts = useCallback(async (pageNum = 1, resetData = false) => {
         try {
             setIsLoading(true);
             setIsError(false);
@@ -20,8 +22,8 @@ export const ProductProvider = (  {children})=>{
             console.log('Fetched products:', res);
 
             if (Array.isArray(res)) {
-                const sortedData = [...data, ...res].sort((a, b) => a.name.localeCompare(b.name));
-                setData(sortedData);
+                const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
+                setData(prevData => resetData ? sortedData : [...prevData, ...sortedData]);
                 if (res.length === 0) {
                     setHasMore(false);
                 }
@@ -33,7 +35,8 @@ export const ProductProvider = (  {children})=>{
             setIsLoading(false);
             setPage(pageNum);
         }
-    }, [data]);
+    }, []);
+
     const handleScroll = useCallback(() => {
         if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading || !hasMore) return;
         fetchProducts(page + 1);
@@ -43,21 +46,43 @@ export const ProductProvider = (  {children})=>{
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
-    const filterProducts = useCallback((letter) => {
-        if (letter === 'ALL') {
-            setFilteredData(data);
-        } else {
-            const filteredProducts = data.filter(product => product.name.toUpperCase().startsWith(letter));
-            setFilteredData(filteredProducts);
-        }
-    }, [data]);
-return(
-    <ProductContext.Provider value={{
-        isLoading,filteredData,letters,isError,
-        data,page,hasMore,fetchProducts,handleScroll,filterProducts}}>
-        {children}
-    </ProductContext.Provider>
-)
 
-}
+    useEffect(() => {
+        fetchProducts(1, true); 
+    }, [fetchProducts]);
+    useEffect(() => {
+        fetchProducts(1, true); 
+    }, [fetchProducts]);
+
+    useEffect(() => {
+        fetchProducts(1, true); 
+    }, [activeCategory, fetchProducts]);
+    const addToBasket = (product) => {
+        setBasket(prevBasket => {
+            const existingProduct = prevBasket.find(item => item.id === product.id);
+            if (existingProduct) {
+                return prevBasket.map(item =>
+                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item 
+                );
+            } else {
+                return [...prevBasket, { ...product, quantity: 1 }];
+            }
+        });
+       
+    };
+    const filteredProducts = activeCategory === 'All'
+        ? data
+        : data.filter((product) => product.category === activeCategory);
+    return (
+        <ProductContext.Provider value={{
+            isLoading, isError,
+            data, page, hasMore, fetchProducts, handleScroll,
+            activeCategory,categories,filteredProducts,setActiveCategory,
+            basket,addToBasket
+        }}>
+            {children}
+        </ProductContext.Provider>
+    );
+};
+
 export default ProductContext;

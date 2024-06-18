@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom';
-import { AppBar, List, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
+import { AppBar, List,ButtonBase,CardActionArea,CardMedia, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -29,8 +29,151 @@ import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import ProductContext from '../context/Products';
 
-  
+
+const images = [
+  {
+    url: 'https://i.pinimg.com/564x/09/c5/00/09c50003f03127703200c00ac9173266.jpg',
+    title: 'Sebze',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/bf/d8/65/bfd8654f8738bebc88fcd7c1aeed3edd.jpg',
+    title: 'Meyve',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://media.istockphoto.com/id/544807136/tr/foto%C4%9Fraf/various-fresh-dairy-products.jpg?s=612x612&w=0&k=20&c=GP4A_e45-TEj5OicvY7pl_LxMTRUnByZoI-VYAIBIxQ=',
+    title: 'Süt Ürünleri',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://foto.haberler.com/haber/2019/07/12/gazli-icecek-icenlere-kanser-konusunda-kotu-h-12236189_amp.jpg',
+    title: 'İçecek',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/33/56/f1/3356f1f0e84d3b51f0577102a6d7ac9c.jpg',
+    title: 'Atıştırmalık',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://rekoltedunyasi.com/wp-content/uploads/2015/10/dumduz-bir-karin-icin-tuketmeniz-gereken-3-karbonhidrat-4.jpg',
+    title: 'Temel Gıda',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://ekerlermutfak.com/image/cache/pasta/urun299de771d1e24baEPT-32-600x600h.JPG',
+    title: 'Fırından',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://www.martico.com.tr/Dosyalar/Hizmet/beyaz-ve-kirmizi-et-urunleri_269.jpg',
+    title: 'Et Ürünleri',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://www.fixgross.com.tr/images/glr/reyonlar/dondurulmus-gida-reyonu/1280x0buzluk5.jpg',
+    title: 'Donmuş Gıda ',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://hisarhospital.com/wp-content/uploads/2015/08/dondurma-her-zaman-masum-olmayabilir.png',
+    title: 'Dondurma',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://www.devgross.com.tr/uploads/urunler/05b0a.jpg',
+    title: 'Hazır Gıda',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/94/82/56/94825628b182a7f7f606761857c773b7.jpg',
+    title: 'Kuruyemiş',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://i.pinimg.com/736x/36/04/f8/3604f894120f45292b200480b7524331.jpg',
+    title: 'Tatlı',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://edit.com.tr/Uploads/Contents/1226183854870.jpg',
+    title: 'Temizlik',
+    width: 'calc(100% / 7)',
+  },
+  {
+    url: 'https://www.eurolab.com.tr/images/Kisisel-Bakim-Urunleri-Testleri.jpg',
+    title: 'Kişisel Bakım',
+    width: 'calc(100% / 7)',
+  },
+];
+
+const ImageButton = styled(ButtonBase)(({ theme }) => ({
+  position: 'relative',
+  height: 167,
+  [theme.breakpoints.down('sm')]: {
+    width: '100% !important', // Overrides inline-style
+    height: 100,
+  },
+  '&:hover, &.Mui-focusVisible': {
+    zIndex: 1,
+    '& .MuiImageBackdrop-root': {
+      opacity: 0.15,
+    },
+    '& .MuiImageMarked-root': {
+      opacity: 0,
+    },
+    '& .MuiTypography-root': {
+      border: '4px solid currentColor',
+    },
+  },
+}));
+
+const ImageSrc = styled('span')({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center 40%',
+});
+
+const Image = styled('span')(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: theme.palette.common.white,
+}));
+
+const ImageBackdrop = styled('span')(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  backgroundColor: theme.palette.common.black,
+  opacity: 0.4,
+  transition: theme.transitions.create('opacity'),
+}));
+
+const ImageMarked = styled('span')(({ theme }) => ({
+  height: 3,
+  width: 18,
+  backgroundColor: theme.palette.common.white,
+  position: 'absolute',
+  bottom: -2,
+  left: 'calc(50% - 9px)',
+  transition: theme.transitions.create('opacity'),
+}));
+
 
 
 const drawerWidth = 240; 
@@ -105,16 +248,40 @@ export const SaleScreen = () => {
         fetchUserData,
         handleLogout,
       } = useContext(ViewContext);
-    
+      const [input, setInput] = useState('');
+      const { isLoading, isError, data, fetchProducts,  activeCategory,categories,filteredProducts,setActiveCategory,basket } = useContext(ProductContext);
+
       const { theme } = useContext(TemaContext);
       const currentTheme = theme === 'light' ? lightTheme : darkTheme;
       const muiTheme = useTheme(); 
       const navigate = useNavigate();
-    
+      const keys = [
+        '1', '2', '3',
+        '4', '5', '6',
+        '7', '8', '9',
+        '0', 'Sil', 'Onayla'
+      ];
+      const paymentMethods = [
+        'Kredi Kartı', 'Nakit', 'E-Fatura',
+        'Belge Bitir', 'Belge İptal', 'Sanal Ödeme'
+      ];
       useEffect(() => {
         fetchVersionFromMockService();
         fetchUserData();
       }, []);
+      const handleKeyPress = (key) => {
+        if (key === 'Sil') {
+          setInput(input.slice(0, -1));
+        } else if (key === 'Onayla') {
+          alert(`Girdiğiniz değer: ${input}`);
+        } else {
+          setInput(input + key);
+        }
+      };
+      const handleCategoryClick = (category) => {
+        setActiveCategory(category);
+        navigate('/products');
+      };
   return (
     <MuiThemeProvider theme={currentTheme}>
 
@@ -229,40 +396,137 @@ export const SaleScreen = () => {
     <Button >Barkodsuz Ürünler</Button>
 
        </Stack>
-       <Paper sx={{width:"auto" , height:500 , margin: "0 16px",backgroundColor:"#cfd8dc" }} elevation={7} ></Paper>
+       <Paper sx={{width:"auto" , height:500 , margin: "0 16px",backgroundColor:"#cfd8dc" }} elevation={7} >
+       <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
+      {images.map((image) => (
+         
+        <ImageButton
+          focusRipple
+          key={image.title}
+          style={{
+            width: image.width,
+          }}
+          onClick={() => handleCategoryClick(image.title)}
+       
+          >
+          <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+          <ImageBackdrop className="MuiImageBackdrop-root" />
+          <Image>
+            <Typography
+              component="span"
+              variant="subtitle1"
+              color="inherit"
+              sx={{
+                position: 'relative',
+                p: 4,
+                pt: 2,
+                pb: (theme) => `calc(${theme.spacing(1)} + 6px)`,
+              }}
+            >
+              {image.title}
+              <ImageMarked className="MuiImageMarked-root" />
+            </Typography>
+          </Image>
+        </ImageButton>
+      ))}
+    </Box>
+
+
+
+       </Paper>
+
+
+
+
+
       </Grid>
-      <Grid item xs={6} backgroundColor="black">
-        <Grid container direction="column" alignItems="flex-end" spacing={2} style={{ marginTop: '100px' }}>
-          <Grid item>
-            <Grid container justifyContent="flex-end">
-              <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-                <Button>Fiyat Gör</Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <Grid container justifyContent="flex-end">
-              <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-                <Button>Belge İptal</Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <Grid container justifyContent="flex-end">
-              <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-                <Button>Satır İptal</Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <Grid container justifyContent="flex-end">
-              <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-                <Button>tıkla</Button>
-              </Grid>
-            </Grid>
-          </Grid>
+      <Grid item xs={6} container sx={{ height: '100%' }}>
+  <Grid item xs={6} backgroundColor="#546e7a">
+  <Paper sx={{width:"auto" , height:"100%" , margin: "0 16px",backgroundColor:"#cfd8dc" }} elevation={10} >
+  {basket.map((item) => (
+                        <div key={item.id} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
+                            <Typography variant="h6">{item.name}</Typography>
+                            <Typography variant="body2">Adet: {item.quantity}</Typography>
+                            <Typography variant="body1">Fiyat: ${item.price}</Typography>
+                        </div>
+                    ))}
+    </Paper>
+  </Grid>
+  <Grid
+    item
+    xs={6}
+    sx={{
+      backgroundColor: '#546e7a',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+  >
+    <Box sx={{ mb: 2, fontSize: '2rem', textAlign: 'center' }}>{input}</Box>
+    <Grid container spacing={1} sx={{ justifyContent: 'center', alignItems: 'center' }}>
+      {keys.map((key, index) => (
+        <Grid item xs={4} key={index}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => handleKeyPress(key)}
+            sx={{ backgroundColor: '#eceff1', color: '#333' }}
+          >
+            {key}
+          </Button>
+        </Grid>
+      ))}
+    </Grid>
+    <Grid container spacing={1} sx={{ mt: 2 }}>
+      {paymentMethods.map((method, index) => (
+        <Grid item xs={6} key={index}>
+          <Button
+            // variant="outlined"
+            fullWidth
+            sx={{backgroundColor:"#b0bec5"}}
+            // onClick={() => handlePaymentMethod(method)}
+          >
+            {method}
+          </Button>
+        </Grid>
+      ))}
+    </Grid>
+  </Grid>
+
+  {/* <Grid container direction="column" alignItems="flex-end" spacing={2} style={{ marginTop: '100px' }}>
+    <Grid item>
+      <Grid container justifyContent="flex-end">
+        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
+          <Button>Fiyat Gör</Button>
         </Grid>
       </Grid>
+    </Grid>
+    <Grid item>
+      <Grid container justifyContent="flex-end">
+        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
+          <Button>Belge İptal</Button>
+        </Grid>
+      </Grid>
+    </Grid>
+    <Grid item>
+      <Grid container justifyContent="flex-end">
+        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
+          <Button>Satır İptal</Button>
+        </Grid>
+      </Grid>
+    </Grid>
+    <Grid item>
+      <Grid container justifyContent="flex-end">
+        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
+          <Button>tıkla</Button>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid> */}
+</Grid>
+
     </Grid>
         </Box>
         </MuiThemeProvider>
