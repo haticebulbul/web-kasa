@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom';
-import { AppBar, List,ButtonBase,CardActionArea,CardMedia, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
+import { AppBar,Table,TableCell,TableRow,TableBody,TableContainer,TableHead, List,ButtonBase,CardActionArea,InputBase,InputAdornment,Checkbox, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -30,83 +30,84 @@ import Paper from '@mui/material/Paper';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import ProductContext from '../context/Products';
-
+import InfiniteScroll from 'react-infinite-scroll-component';
+import '../App.css';
 
 const images = [
   {
     url: 'https://i.pinimg.com/564x/09/c5/00/09c50003f03127703200c00ac9173266.jpg',
     title: 'Sebze',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://i.pinimg.com/564x/bf/d8/65/bfd8654f8738bebc88fcd7c1aeed3edd.jpg',
     title: 'Meyve',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://media.istockphoto.com/id/544807136/tr/foto%C4%9Fraf/various-fresh-dairy-products.jpg?s=612x612&w=0&k=20&c=GP4A_e45-TEj5OicvY7pl_LxMTRUnByZoI-VYAIBIxQ=',
     title: 'Süt Ürünleri',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://foto.haberler.com/haber/2019/07/12/gazli-icecek-icenlere-kanser-konusunda-kotu-h-12236189_amp.jpg',
     title: 'İçecek',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://i.pinimg.com/564x/33/56/f1/3356f1f0e84d3b51f0577102a6d7ac9c.jpg',
     title: 'Atıştırmalık',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://rekoltedunyasi.com/wp-content/uploads/2015/10/dumduz-bir-karin-icin-tuketmeniz-gereken-3-karbonhidrat-4.jpg',
     title: 'Temel Gıda',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://ekerlermutfak.com/image/cache/pasta/urun299de771d1e24baEPT-32-600x600h.JPG',
     title: 'Fırından',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://www.martico.com.tr/Dosyalar/Hizmet/beyaz-ve-kirmizi-et-urunleri_269.jpg',
     title: 'Et Ürünleri',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://www.fixgross.com.tr/images/glr/reyonlar/dondurulmus-gida-reyonu/1280x0buzluk5.jpg',
     title: 'Donmuş Gıda ',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://hisarhospital.com/wp-content/uploads/2015/08/dondurma-her-zaman-masum-olmayabilir.png',
     title: 'Dondurma',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://www.devgross.com.tr/uploads/urunler/05b0a.jpg',
     title: 'Hazır Gıda',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://i.pinimg.com/564x/94/82/56/94825628b182a7f7f606761857c773b7.jpg',
     title: 'Kuruyemiş',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://i.pinimg.com/736x/36/04/f8/3604f894120f45292b200480b7524331.jpg',
     title: 'Tatlı',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://edit.com.tr/Uploads/Contents/1226183854870.jpg',
     title: 'Temizlik',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
   {
     url: 'https://www.eurolab.com.tr/images/Kisisel-Bakim-Urunleri-Testleri.jpg',
     title: 'Kişisel Bakım',
-    width: 'calc(100% / 7)',
+    width: 'calc(100% / 5)',
   },
 ];
 
@@ -249,83 +250,193 @@ export const SaleScreen = () => {
         handleLogout,
       } = useContext(ViewContext);
       const [input, setInput] = useState('');
-      const { isLoading, isError, data, fetchProducts,  activeCategory,categories,filteredProducts,setActiveCategory,basket } = useContext(ProductContext);
-
+      const { getTotalPrice ,barcode,handleBarcodeScan, 
+        setBarcode, handleInputChange, handleScan, fetchProducts,
+         hasMore,setActiveCategory,basket,adjustProductQuantity ,setQuantityInputMode,quantityInputMode
+         ,currentProductId,setCurrentProductId,clearBasket,removeSelectedItems,selectedItems,toggleSelectItem,
+       applyPromotion,getTotalPriceWithPromotion,handleKeyPress,handleRowClick} = useContext(ProductContext);
+      
       const { theme } = useContext(TemaContext);
       const currentTheme = theme === 'light' ? lightTheme : darkTheme;
       const muiTheme = useTheme(); 
       const navigate = useNavigate();
-      const keys = [
-        '1', '2', '3',
-        '4', '5', '6',
-        '7', '8', '9',
-        '0', 'Sil', 'Onayla'
-      ];
+      const [quantity, setQuantity] = useState('');
+      const [inputMode, setInputMode] = useState('barcode');
+      const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'C', 'Enter']
       const paymentMethods = [
-        'Kredi Kartı', 'Nakit', 'E-Fatura',
-        'Belge Bitir', 'Belge İptal', 'Sanal Ödeme'
+       
+        'Ödemeye Geç', 'Belge İptal', 'Satır İptal','Kampanyalar'
       ];
       useEffect(() => {
         fetchVersionFromMockService();
         fetchUserData();
       }, []);
-      const handleKeyPress = (key) => {
-        if (key === 'Sil') {
-          setInput(input.slice(0, -1));
-        } else if (key === 'Onayla') {
-          alert(`Girdiğiniz değer: ${input}`);
-        } else {
-          setInput(input + key);
-        }
-      };
+
+      // const handleKeyPress = (key) => {
+      //   if (key === 'C') {
+      //     if (quantityInputMode) {
+      //       setQuantity('');
+      //     } else {
+      //       setBarcode('');
+      //     }
+      //   } else if (key === 'Enter') {
+      //     if (quantityInputMode) {
+      //       adjustProductQuantity(currentProductId, parseInt(quantity, 10));
+      //       setQuantity('');
+      //       setQuantityInputMode(false);
+      //       setCurrentProductId(null);
+      //     } else {
+      //       handleBarcodeScan(barcode);
+      //     }
+      //   } else {
+      //     if (quantityInputMode) {
+      //       setQuantity((prev) => prev + key);
+      //     } else {
+      //       setBarcode((prev) => prev + key);
+      //     }
+      //   }
+      // };
+    //   const handleKeyPress = (key) => {
+    //     if (key === 'C') {
+    //         setQuantity('');
+    //         setQuantityInputMode(false);
+    //         setCurrentProduct(null);
+    //     } else if (key === 'Enter') {
+    //         adjustProductQuantity(currentProduct.id, parseInt(quantity, 10));
+    //         setQuantity('');
+    //         setQuantityInputMode(false);
+    //         setCurrentProduct(null);
+    //     } else {
+    //         setQuantity((prev) => prev + key);
+    //     }
+    // };
       const handleCategoryClick = (category) => {
         setActiveCategory(category);
         navigate('/products');
       };
+      const [page, setPage] = useState(1);
+
+         const fetchMoreData = () => {
+        fetchProducts(page + 1);
+        setPage(page + 1);
+    };
+    const [showCheckboxes, setShowCheckboxes] = useState(false);
+    const [showPromotionOptions, setShowPromotionOptions] = useState(false);
+
+    const handlePaymentMethod = (method) => {
+      if (method === 'Belge İptal') {
+        clearBasket();
+      } else if (method === 'Satır İptal') {
+        setShowCheckboxes(prevShowCheckboxes => !prevShowCheckboxes);
+        if (showCheckboxes) {
+          removeSelectedItems();
+        }
+      } else if (method === 'Ödemeye Geç') {
+        navigate("/paymentscreen");
+      } else if (method === 'Kampanyalar') {
+        applyPromotion('3_for_2');
+      }
+    };
+    const [open, setOpen] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [email, setEmail] = useState('');
+    const [barcodeDialogOpen, setBarcodeDialogOpen] = useState(false);
+  
+    const handleClose = () => {
+      setOpen(false);
+      setKeyboardVisible(false);
+      setBarcodeDialogOpen(false);
+    };
+  
+    const handleEmailChange = (event) => {
+      setEmail(event.target.value);
+    };
+  
+    const handleConfirmEmail = () => {
+      console.log('Entered email:', email);
+      handleClose();
+    };
+  
+    const toggleKeyboard = () => {
+      setKeyboardVisible(!keyboardVisible);
+    };
+  
+    const onKeyPress = (button) => {
+      if (button === '{enter}') {
+        handleConfirmEmail();
+      } else if (button === '{bksp}') {
+        setEmail(prevEmail => prevEmail.slice(0, -1));
+      } else {
+        setEmail(prevEmail => prevEmail + button);
+      }
+    };
+  
+    const handleBarcodeChange = (event) => {
+      setBarcode(event.target.value);
+    };
+  
+    const handleConfirmBarcode = () => {
+      console.log('Entered barcode:', barcode);
+      handleClose();
+    };
+  
+    const onBarcodeKeyPress = (button) => {
+      if (button === '{enter}') {
+        handleConfirmBarcode();
+      } else if (button === '{bksp}') {
+        setBarcode(prevBarcode => prevBarcode.slice(0, -1));
+      } else {
+        setBarcode(prevBarcode => prevBarcode + button);
+      }
+    };
+ 
+   
   return (
     <MuiThemeProvider theme={currentTheme}>
 
     <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}> 
     <StyledAppBar position="fixed" open={isOpen}>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{
-                  marginRight: 2,
-                  ...(isOpen && { display: 'none' }),
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{
-                  flexGrow: 1,
-                  textAlign: 'center',
-                }}
-              >
-              Satış Ekranı
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
-                  <CardContent>
-                    <Typography variant="body2" color="text.secondary">
-                      Version: {version}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Kullanıcı Kodu: {userData}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Box>
-            </Toolbar>
-          </StyledAppBar>
-    
+  <Toolbar sx={{ minHeight: '64px' }}> {/* Appbar'ın sabit yüksekliğini ayarla */}
+    <IconButton
+      color="inherit"
+      aria-label="open drawer"
+      onClick={handleDrawerOpen}
+      edge="start"
+      sx={{
+        marginRight: 2,
+        ...(isOpen && { display: 'none' }),
+      }}
+    >
+      <MenuIcon />
+    </IconButton>
+    <Typography
+      variant="h6"
+      noWrap
+      component="div"
+      sx={{
+        flexGrow: 1,
+        textAlign: 'center',
+        fontSize: '1.25rem', // Başlık font boyutu
+        fontWeight: 'bold', // Kalın font
+      }}
+    >
+      Satış Ekranı
+    </Typography>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
+        <CardContent sx={{ py: 1 }}> {/* İçerik arasındaki boşluğu azalt */}
+          <Typography variant="body2" color="text.secondary">
+            <strong>Versiyon:</strong> {version}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            <strong>Kullanıcı Kodu:</strong> {userData}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
+  </Toolbar>
+</StyledAppBar>
+
           <StyledDrawer variant="permanent" open={isOpen}>
             <DrawerHeader>
               <IconButton onClick={handleDrawerClose}>
@@ -380,155 +491,257 @@ export const SaleScreen = () => {
               </ListItemButton>
             </ListItem>
           </StyledDrawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <DrawerHeader />
-          
-          </Box>
+          </Box> */}
 
           
        
 
           <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-      <Grid item xs={6} >
-       <Stack display={'flex'} flexDirection={'row'} style={{ marginTop: '80px' }}>
-   <Button component={Link} to="/products">Ürünler</Button>
-    <Button>Kategoriler</Button>
-    <Button >Barkodsuz Ürünler</Button>
-
-       </Stack>
-       <Paper sx={{width:"auto" , height:500 , margin: "0 16px",backgroundColor:"#cfd8dc" }} elevation={7} >
-       <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
-      {images.map((image) => (
-         
-        <ImageButton
-          focusRipple
-          key={image.title}
-          style={{
-            width: image.width,
-          }}
-          onClick={() => handleCategoryClick(image.title)}
-       
-          >
-          <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
-          <ImageBackdrop className="MuiImageBackdrop-root" />
-          <Image>
-            <Typography
-              component="span"
-              variant="subtitle1"
-              color="inherit"
-              sx={{
-                position: 'relative',
-                p: 4,
-                pt: 2,
-                pb: (theme) => `calc(${theme.spacing(1)} + 6px)`,
-              }}
-            >
-              {image.title}
-              <ImageMarked className="MuiImageMarked-root" />
-            </Typography>
-          </Image>
-        </ImageButton>
-      ))}
-    </Box>
-
-
-
-       </Paper>
-
-
-
-
-
-      </Grid>
-      <Grid item xs={6} container sx={{ height: '100%' }}>
-  <Grid item xs={6} backgroundColor="#546e7a">
-  <Paper sx={{width:"auto" , height:"100%" , margin: "0 16px",backgroundColor:"#cfd8dc" }} elevation={10} >
-  {basket.map((item) => (
-                        <div key={item.id} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
-                            <Typography variant="h6">{item.name}</Typography>
-                            <Typography variant="body2">Adet: {item.quantity}</Typography>
-                            <Typography variant="body1">Fiyat: ${item.price}</Typography>
-                        </div>
-                    ))}
-    </Paper>
-  </Grid>
-  <Grid
-    item
-    xs={6}
-    sx={{
-      backgroundColor: '#546e7a',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
+          <Grid item xs={4}>
+  {/* Kategoriler ve barkod girişi */}
+  <Stack 
+    display={'flex'} 
+    flexDirection={'column'} 
+    alignItems={'center'} 
+    style={{ marginTop: '80px' }}
+  >
+     <InputBase
+                type="text"
+                value={barcode}
+                onChange={handleInputChange}
+                placeholder="Enter barcode"
+                sx={{
+                    width: '80%',
+                    marginBottom: '20px',
+                    padding: '10px',
+                    backgroundColor: '#fff',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}
+                endAdornment={
+                    <InputAdornment position="end">
+                        <button 
+                            onClick={handleScan}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#546e7a',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Sepete Ekle
+                        </button>
+                    </InputAdornment>
+                }
+            />
+<Paper 
+  sx={{ 
+    width: 400, 
+    height: 500, 
+    margin: "0 16px", 
+    backgroundColor: "#cfd8dc", 
+    padding: '16px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column'
+  }} 
+  elevation={7}
+>
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      justifyContent: 'center', 
+      alignItems: 'center',
+      width: '100%',
     }}
   >
-    <Box sx={{ mb: 2, fontSize: '2rem', textAlign: 'center' }}>{input}</Box>
-    <Grid container spacing={1} sx={{ justifyContent: 'center', alignItems: 'center' }}>
-      {keys.map((key, index) => (
+    {images.map((image, index) => (
+      <ImageButton
+        focusRipple
+        key={image.title}
+        style={{
+          width: '80px', // Yeni boyut
+          height: '80px', // Yeni boyut
+          margin: '8px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'hidden',
+          position: 'relative',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          flexShrink: 0
+        }}
+        onClick={() => handleCategoryClick(image.title)}
+      >
+        <ImageSrc style={{ backgroundImage: `url(${image.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        <ImageBackdrop className="MuiImageBackdrop-root" />
+        <Image>
+          <Typography
+            component="span"
+            variant="subtitle1"
+            color="inherit"
+            sx={{
+              position: 'relative',
+              p: 2,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              color: '#fff',
+              borderRadius: '4px',
+              textAlign: 'center',
+              width: '100%'
+            }}
+          >
+            {image.title}
+            <ImageMarked className="MuiImageMarked-root" />
+          </Typography>
+        </Image>
+      </ImageButton>
+    ))}
+  </Box>
+</Paper>
+
+  </Stack>
+</Grid>
+
+
+
+  <Grid item xs={8} spacing={4} container sx={{ height: '100%' }}>
+    {/* Sepet ve tuş takımı */}
+     <Grid item xs={8} > 
+     <Paper elevation={10} style={{ marginTop: '85px', position: 'relative', height: '600px', overflowY: 'auto' }}>
+          <div style={{ padding: '10px', backgroundColor: '#cfd8dc', position: 'sticky', top: 0, zIndex: 1 }}>
+            <Typography variant="h4">Toplam Fiyat: ${getTotalPrice().toFixed(2)}</Typography>
+            <Typography variant="h6">Toplam Fiyat with Promotion: ${getTotalPriceWithPromotion().toFixed(2)}</Typography>
+          </div>
+          <InfiniteScroll
+            dataLength={basket.length}
+            next={() => {}} // Add your function to load more data if needed
+            hasMore={false} // Change if you have more data to load
+            height={500}
+            scrollableTarget="scrollableDiv"
+          >
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {showCheckboxes && <TableCell></TableCell>}
+                    <TableCell>Ürün Adı</TableCell>
+                    <TableCell>Adet</TableCell>
+                    <TableCell>Fiyat</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {basket.map((item) => (
+                    <TableRow key={item.id} onClick={() => toggleSelectItem(item.id)} hover>
+                      {showCheckboxes && (
+                        <TableCell padding="checkbox">
+                          <Checkbox checked={selectedItems.includes(item.id)} />
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                          {item.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {item.quantity}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#333' }}>
+                          ${item.price.toFixed(2)}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </InfiniteScroll>
+        </Paper>
+    </Grid>
+  
+    <Grid
+  item
+  xs={4}
+  sx={{
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: '#f5f5f5', // Arka plan rengi
+    padding: '16px', // Kenar boşluğu
+    borderRadius: '8px', // Kenar yumuşatma
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Gölgelendirme
+  }}
+>
+  <Box sx={{ mb: 2, fontSize: '2rem', textAlign: 'center', fontWeight: 'bold', color: '#333' }}>
+  {quantityInputMode ? quantity : ''}
+  </Box>
+  <Paper elevation={10} sx={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '8px', marginBottom: '16px' }}>
+  <Grid container spacing={1} sx={{ justifyContent: 'center', alignItems: 'center' }}>
+  {keys.map((key, index) => (
         <Grid item xs={4} key={index}>
           <Button
             variant="contained"
-            fullWidth
             onClick={() => handleKeyPress(key)}
-            sx={{ backgroundColor: '#eceff1', color: '#333' }}
+            sx={{
+              width: '100%',
+              padding: '20px',
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: '#fff',
+              backgroundColor: '#546e7a',
+              '&:hover': {
+                backgroundColor: '#455a64',
+              },
+            }}
           >
             {key}
           </Button>
         </Grid>
       ))}
     </Grid>
-    <Grid container spacing={1} sx={{ mt: 2 }}>
+  </Paper>
+  <Paper elevation={10} sx={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
+    <Grid container spacing={1} sx={{ justifyContent: 'center', alignItems: 'center' }}>
       {paymentMethods.map((method, index) => (
-        <Grid item xs={6} key={index}>
+        <Grid item xs={12} key={index}>
           <Button
-            // variant="outlined"
-            fullWidth
-            sx={{backgroundColor:"#b0bec5"}}
-            // onClick={() => handlePaymentMethod(method)}
+            variant="contained"
+            onClick={() => handlePaymentMethod(method)}
+            sx={{
+              width: '100%',
+              padding: '10px',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              color: '#fff',
+              backgroundColor: '#37474f',
+              '&:hover': {
+                backgroundColor: '#263238',
+              },
+            }}
           >
             {method}
           </Button>
         </Grid>
       ))}
     </Grid>
-  </Grid>
-
-  {/* <Grid container direction="column" alignItems="flex-end" spacing={2} style={{ marginTop: '100px' }}>
-    <Grid item>
-      <Grid container justifyContent="flex-end">
-        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-          <Button>Fiyat Gör</Button>
-        </Grid>
-      </Grid>
-    </Grid>
-    <Grid item>
-      <Grid container justifyContent="flex-end">
-        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-          <Button>Belge İptal</Button>
-        </Grid>
-      </Grid>
-    </Grid>
-    <Grid item>
-      <Grid container justifyContent="flex-end">
-        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-          <Button>Satır İptal</Button>
-        </Grid>
-      </Grid>
-    </Grid>
-    <Grid item>
-      <Grid container justifyContent="flex-end">
-        <Grid item style={{ backgroundColor: 'white', padding: '10px' }}>
-          <Button>tıkla</Button>
-        </Grid>
-      </Grid>
-    </Grid>
-  </Grid> */}
+  </Paper>
 </Grid>
 
-    </Grid>
-        </Box>
-        </MuiThemeProvider>
-  )
-}
+</Grid>
+
+</Grid>
+</Box>
+</MuiThemeProvider>
+);
+};

@@ -264,10 +264,23 @@ export const Product = () => {
                                                         <Typography variant="h4">
                                                             ${product.price}
                                                         </Typography>
-                                                        <Button onClick={() => handleAddToBasket(product)}>Ekle</Button>
+                                                        
+                                                      
 
 
                                                     </Box>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                                {product.kod && (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Kod: {product.kod}
+                                    </Typography>
+                                )}
+                                {product.barkod && (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Barkod: {product.barkod}
+                                    </Typography>
+                                )}
+                            </Box>  <Button onClick={() => handleAddToBasket(product)}>Ekle</Button>
                                                 </CardContent>
                                             </Card>
                                         </Grid>

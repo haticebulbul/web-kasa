@@ -7,6 +7,7 @@ import PaymentScreen from './components/PaymentScreen';
 import  Settings  from './components/Settings';
 import { SaleScreen } from './components/SaleScreen';
 import { Product } from './components/Product';
+import Receipt from './components/Receipt';
 function App() {
   
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/salescreen" element={<SaleScreen />} />
         <Route path="/products" element={<Product />} />
+        <Route path="/receipt" element={<Receipt />} />
 
       </Routes>
     </div>
