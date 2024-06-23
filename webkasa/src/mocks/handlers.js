@@ -15,7 +15,7 @@ const allProducts = new Map(
     [11, { "id": 11, "kod": "M011","name": "Karpuz", "price": 15, "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgzZndxRBLdqGQhgWvEF5JBREVjXiduTZEMg&s", "category": "Meyve" }],
     [12, { "id": 12, "kod": "M012","name": "Kavun", "price": 14, "image": "https://www.intfarming.com/blog/wp-content/uploads/2021/03/6239ac869b17c226cc05aefa_sumela1-850x560.jpg", "category": "Meyve" }],
     [13, { "id": 13, "kod": "M013","name": "Üzüm", "price": 10, "image": "https://ideacdn.net/idea/fm/03/myassets/products/065/uzum-aromasi-20-g-1929.jpeg?revision=1717157620", "category": "Meyve" }],
-    [14, { "id": 14,"barkod": 5901234567101, "name": "Elma Suyu", "price": 7, "image": "https://images.unsplash.com/photo-1511689985600-2c8d4ac8f00b", "category": "İçecek" }],
+    [14, { "id": 14,"barkod": "5901234567101", "name": "Elma Suyu", "price": 7, "image": "https://images.unsplash.com/photo-1511689985600-2c8d4ac8f00b", "category": "İçecek" }],
     [15, { "id": 15,"barkod": "5901234567102", "name": "Portakal Suyu", "price": 7, "image": "https://images.unsplash.com/photo-1571689937700-97a003a443d0", "category": "İçecek" }],
     [16, { "id": 16,"barkod": "5901234567103", "name": "Soda", "price": 3, "image": "https://images.unsplash.com/photo-1571689937700-97a003a443d0", "category": "İçecek" }],
     [17, { "id": 17, "barkod": "5901234567104","name": "Maden Suyu", "price": 3, "image": "https://images.unsplash.com/photo-1511689985600-2c8d4ac8f00b", "category": "İçecek" }],

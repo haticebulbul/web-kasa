@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { AppBar, List, Drawer, Toolbar, IconButton, Grid,Typography, Stack, Button, Menu, MenuItem, Card, CardContent, CardActionArea, Box, Divider } from '@mui/material'
+import { AppBar, List, Drawer, Toolbar, IconButton, Grid,Typography,ButtonBase,
+   Stack, Button, Menu, MenuItem, Card, CardContent, CardActionArea, Box, Divider } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -25,6 +26,174 @@ import KitchenIcon from '@mui/icons-material/Kitchen';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import BookIcon from '@mui/icons-material/Book';
 import ProductContext from '../context/Products';
+const images = [
+  {
+    url: 'https://i.pinimg.com/564x/09/c5/00/09c50003f03127703200c00ac9173266.jpg',
+    title: 'Sebze',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/bf/d8/65/bfd8654f8738bebc88fcd7c1aeed3edd.jpg',
+    title: 'Meyve',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://media.istockphoto.com/id/544807136/tr/foto%C4%9Fraf/various-fresh-dairy-products.jpg?s=612x612&w=0&k=20&c=GP4A_e45-TEj5OicvY7pl_LxMTRUnByZoI-VYAIBIxQ=',
+    title: 'Süt Ürünleri',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://foto.haberler.com/haber/2019/07/12/gazli-icecek-icenlere-kanser-konusunda-kotu-h-12236189_amp.jpg',
+    title: 'İçecek',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/33/56/f1/3356f1f0e84d3b51f0577102a6d7ac9c.jpg',
+    title: 'Atıştırmalık',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://rekoltedunyasi.com/wp-content/uploads/2015/10/dumduz-bir-karin-icin-tuketmeniz-gereken-3-karbonhidrat-4.jpg',
+    title: 'Temel Gıda',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://ekerlermutfak.com/image/cache/pasta/urun299de771d1e24baEPT-32-600x600h.JPG',
+    title: 'Fırından',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://www.martico.com.tr/Dosyalar/Hizmet/beyaz-ve-kirmizi-et-urunleri_269.jpg',
+    title: 'Et Ürünleri',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://www.fixgross.com.tr/images/glr/reyonlar/dondurulmus-gida-reyonu/1280x0buzluk5.jpg',
+    title: 'Donmuş Gıda ',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://hisarhospital.com/wp-content/uploads/2015/08/dondurma-her-zaman-masum-olmayabilir.png',
+    title: 'Dondurma',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://www.devgross.com.tr/uploads/urunler/05b0a.jpg',
+    title: 'Hazır Gıda',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://i.pinimg.com/564x/94/82/56/94825628b182a7f7f606761857c773b7.jpg',
+    title: 'Kuruyemiş',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://i.pinimg.com/736x/36/04/f8/3604f894120f45292b200480b7524331.jpg',
+    title: 'Tatlı',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://edit.com.tr/Uploads/Contents/1226183854870.jpg',
+    title: 'Temizlik',
+    width: 'calc(100% / 5)',
+  },
+  {
+    url: 'https://www.eurolab.com.tr/images/Kisisel-Bakim-Urunleri-Testleri.jpg',
+    title: 'Kişisel Bakım',
+    width: 'calc(100% / 5)',
+  },
+];
+
+const ImageButton = styled('button')(({ theme }) => ({
+  position: 'relative',
+  width: '100%',
+  height: '160px', // Yüksekliği biraz azaltarak daha uygun bir boyut sağladık
+  margin: '8px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden',
+  borderRadius: '8px',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  transition: 'transform 0.3s ease',
+  '&:hover': {
+    transform: 'scale(1.05)',
+    '& $ImageBackdrop': {
+      opacity: 0.5,
+    },
+    '& $ImageMarked': {
+      opacity: 1,
+    },
+  },
+}));
+
+const ImageSrc = styled('div')({
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  transition: 'opacity 0.3s ease',
+});
+
+const ImageBackdrop = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  transition: 'opacity 0.3s ease',
+}));
+
+const Image = styled('div')({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  color: '#fff',
+  transition: 'opacity 0.3s ease',
+});
+
+const ImageMarked = styled('div')({
+  height: 3,
+  width: 18,
+  backgroundColor: '#fff',
+  position: 'absolute',
+  bottom: -2,
+  left: 'calc(50% - 9px)',
+  transition: 'opacity 0.3s ease',
+  opacity: 0,
+});
+
+const ResponsiveBox = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(5, 1fr)', // 5 sütun olarak ayarlandı
+  gap: '16px',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+  padding: '16px',
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: 'repeat(2, 1fr)', // Küçük ekranlarda 2 sütun
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    gridTemplateColumns: 'repeat(3, 1fr)', // Orta ekranlarda 3 sütun
+  },
+  [theme.breakpoints.between('md', 'lg')]: {
+    gridTemplateColumns: 'repeat(4, 1fr)', // Orta-büyük ekranlarda 4 sütun
+  },
+  [theme.breakpoints.up('lg')]: {
+    gridTemplateColumns: 'repeat(5, 1fr)', // Büyük ekranlarda 5 sütun
+  },
+}));
+
 
 const drawerWidth = 240; 
 const openedMixin = (theme) => ({
@@ -89,7 +258,7 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
 );
 
 export const AnaEkran = () => {
-  const { data, isError, isLoading, fetchProducts } = useContext(ProductContext);
+  const { data, isError, isLoading, fetchProducts,setActiveCategory } = useContext(ProductContext);
   const [storeStatus, setStoreStatus] = useState('Checking...');
   const {
     isOpen,
@@ -112,7 +281,10 @@ export const AnaEkran = () => {
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme(); 
   const categories = ['All', 'Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
-
+  const handleCategoryClick = (category) => {
+    setActiveCategory(category);
+    navigate('/products');
+  };
   const CategoryItem = styled('div')(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#fff',
     color: theme.palette.mode === 'dark' ? '#fff' : '#333',
@@ -149,15 +321,12 @@ export const AnaEkran = () => {
     return () => clearInterval(intervalId);
   }, []);
   
-  const renderCategories = () => {
-    return categories.map((category, index) => (
-      <Grid item xs={6} sm={4} md={3} key={index}>
-        <CategoryItem onClick={() => navigate(`/category/${category}`)}>
-          {category}
-        </CategoryItem>
-      </Grid>
-    ));
-  };
+
+  const MainContent = styled(Box)(({ theme }) => ({
+    flexGrow: 1, 
+    padding: theme.spacing(3), // Adjust padding as needed
+    marginTop: '64px',       // This is crucial to start below the AppBar
+  }));
   const tarih = new Date();
 
   return (
@@ -263,12 +432,37 @@ export const AnaEkran = () => {
             </ListItemButton>
           </ListItem>
         </StyledDrawer>
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <DrawerHeader />
-          <Grid container spacing={3}>
-            {renderCategories()}
-          </Grid>
-        </Box>
+        <MainContent>
+        <ResponsiveBox>
+      {images.map((image) => (
+        <ImageButton
+          key={image.title}
+          onClick={() => handleCategoryClick(image.title)}
+        >
+          <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+          <ImageBackdrop />
+          <Image>
+            <Typography
+              component="span"
+              variant="subtitle1"
+              color="inherit"
+              sx={{
+                position: 'relative',
+                p: 2,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                borderRadius: '4px',
+                textAlign: 'center',
+                width: '100%',
+              }}
+            >
+              {image.title}
+              <ImageMarked className="MuiImageMarked-root" />
+            </Typography>
+          </Image>
+        </ImageButton>
+      ))}
+    </ResponsiveBox>
+    </MainContent>
       </Box>
     </MuiThemeProvider>
   );

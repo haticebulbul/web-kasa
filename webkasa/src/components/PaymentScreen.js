@@ -115,7 +115,8 @@ const PaymentScreen = () => {
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme();
   const navigate = useNavigate();
-  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket,
+  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket,            setCompletedTransaction,
+
     selectedItems, getTotalPriceWithPromotion, quantityInputMode, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments
   } = useContext(ProductContext);
   const [page, setPage] = useState(1);
@@ -141,46 +142,106 @@ const PaymentScreen = () => {
     setIsCheckoutEnabled(remainingAmount <= 0);
   }, [partialPayments]);
 
-  const handleKeyPress = (key) => {
-    if (key === 'sil') {
-      setPaymentAmount(paymentAmount.slice(0, -1));
-    } else if (key === 'onayla') {
-      if (selectedMethod) {
-        const amount = parseFloat(paymentAmount);
-        if (!isNaN(amount) && amount > 0) {
+const handleKeyPress = (key) => {
+  const totalPriceWithPromotion = getTotalPriceWithPromotion();
+  const totalPaid = calculateTotalPaid();
+  const remainingAmount = totalPriceWithPromotion - totalPaid;
+
+  if (key === 'sil') {
+    setPaymentAmount(paymentAmount.slice(0, -1));
+  } else if (key === 'onayla') {
+    if (selectedMethod) {
+      const amount = parseFloat(paymentAmount);
+      if (!isNaN(amount) && amount > 0) {
+        if (selectedMethod === 'Kredi' && amount > remainingAmount) {
+          alert('Girilen miktar toplam fiyattan fazla olamaz.');
+        } else if (selectedMethod === 'Nakit') {
+          if (amount >= remainingAmount) {
+            setPartialPayments(prev => ({
+              ...prev,
+              [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+            }));
+            setPaymentAmount('');
+            setChangeAmount(amount - remainingAmount);
+            if (amount >= remainingAmount) {
+              // clearBasket(); // Kalan tutar 0 veya para üstü pozitif olduğunda sepeti temizle
+            }
+          } else {
+            setPartialPayments(prev => ({
+              ...prev,
+              [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+            }));
+            setPaymentAmount('');
+            setChangeAmount(null);
+          }
+        } else {
           setPartialPayments(prev => ({
             ...prev,
             [selectedMethod]: (prev[selectedMethod] || 0) + amount,
           }));
           setPaymentAmount('');
+          if (selectedMethod === 'Kredi') {
+            clearBasket(); // Kredi kartıyla ödeme yapıldığında sepeti temizle
+          }
         }
       }
+    }
+  } else {
+    const newPaymentAmount = parseFloat(paymentAmount + key);
+    if (selectedMethod === 'Kredi' && newPaymentAmount > remainingAmount) {
+      alert('Girilen miktar toplam fiyattan fazla olamaz.');
     } else {
       setPaymentAmount(prev => prev + key);
     }
-  };
+  }
+};
 
   const handlePaymentMethod = (method) => {
     setSelectedMethod(method);
 
     if (method === 'Belge İptal') {
-      setBasket([]); // This should now work if setBasket is defined in ProductContext
-      setPartialPayments({});
-      setIsCheckoutEnabled(false);
+        clearBasket();
     } else if (method === 'Satır İptal') {
-      setShowCheckboxes(prevShowCheckboxes => !prevShowCheckboxes);
-      if (showCheckboxes) {
-        removeSelectedItems();
-      }
+      setShowCheckboxes(true); 
+        // setShowCheckboxes(prevShowCheckboxes => !prevShowCheckboxes);
+        // if (showCheckboxes) {
+        //     removeSelectedItems();
+        // }
     } else if (method === 'Belge Bitir') {
-      if (isCheckoutEnabled) {
-        navigate('/receipt');
-      }
+        if (isCheckoutEnabled) {
+            setCompletedTransaction({
+                basket: [...basket],
+                totalPaid: calculateTotalPaid(),
+                totalPriceWithPromotion: getTotalPriceWithPromotion(),
+    
+            });
+            navigate('/receipt');
+        }
     } else if (method === 'E-Fatura') {
-      setOpen(true);
+        setOpen(true);
     }
-  };
+};
+const handlePaymentComplete = () => {
+  const totalPriceWithPromotion = getTotalPriceWithPromotion();
+  const totalPaid = calculateTotalPaid();
 
+  if (totalPaid >= totalPriceWithPromotion) {
+    setCompletedTransaction(true);
+    clearBasket();
+    setPartialPayments({});
+    setChangeAmount(totalPaid - totalPriceWithPromotion);
+  } else {
+    alert('Lütfen toplam ücreti ödeyin.');
+  }
+};
+const handleRowCancel = () => {
+  if (showCheckboxes && selectedItems.length > 0) {
+    removeSelectedItems();
+    setShowCheckboxes(false); // Seçim modunu devre dışı bırak
+  } else {
+    alert('Lütfen iptal etmek için bir satır seçin.');
+  }
+};
   const calculateTotalPaid = () => {
     return Object.values(partialPayments).reduce((total, amount) => total + amount, 0);
   };
@@ -222,6 +283,17 @@ const PaymentScreen = () => {
       setEmail(prevEmail => prevEmail + button);
     }
   };
+  const handleDocumentFinish = () => {
+    const remainingAmount = calculateRemainingAmount();
+    
+    if (remainingAmount === 0) {
+      handlePaymentComplete();
+      clearBasket();
+      navigate('/receipt');
+    } else {
+      alert('Lütfen ödemenizi tamamlayın.');
+    }
+  };
 
   return (
     <MuiThemeProvider theme={currentTheme}>
@@ -249,24 +321,17 @@ const PaymentScreen = () => {
               Payment Screen
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography
-                variant="subtitle2"
-                component="div"
-                sx={{ mr: 2 }}
-              >
-                {version}
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                component="div"
-                sx={{ mr: 2 }}
-              >
-                {userData.username}
-              </Typography>
-              <IconButton color="inherit" onClick={handleLogout}>
-                <LogoutIcon />
-              </IconButton>
-            </Box>
+            <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
+              <CardContent sx={{ py: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Versiyon:</strong> {version}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Kullanıcı Kodu:</strong> {userData}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
           </Toolbar>
         </StyledAppBar>
         <StyledDrawer variant="permanent" open={isOpen}>
@@ -414,9 +479,38 @@ const PaymentScreen = () => {
                       </Button>
                     ))}
                   </Box>
-                  <Typography variant="h6" align="right" gutterBottom>
+                  
+                  {changeAmount !== null && (
+                    <Typography variant="h6"align="right"  gutterBottom>
+                      Para Üstü: {changeAmount.toFixed(2)} TL
+                    </Typography>
+                  )}
+                  {changeAmount === null && (
+                    <Typography variant="h6" align='right' gutterBottom>
+                      Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
+                    </Typography>
+                  )}
+                   {/* <Box sx={{ mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handlePaymentComplete}
+                  disabled={!isCheckoutEnabled}
+                >
+                  Ödemeyi Tamamla
+                </Button>
+                {changeAmount !== null && (
+                  <Typography variant="h6" sx={{ mt: 2 }}>
+                    Para Üstü: {changeAmount.toFixed(2)}
+                  </Typography>
+                )}
+              </Box> */}
+                  {/* <Typography variant="h6" gutterBottom>
                     Para Üstü: {calculateRemainingAmount().toFixed(2)} 
                   </Typography>
+                  <Typography variant="h6" align="right" gutterBottom>
+                    Para Üstü: {calculateRemainingAmount().toFixed(2)} 
+                  </Typography> */}
                 </CardContent>
               </Card>
             </Grid>

@@ -1,5 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { AppBar, List, Drawer, Skeleton, Toolbar, CardMedia, IconButton, Typography, Stack, Button, Divider, Grid, Paper, Box, Card, CardContent, CardActions } from '@mui/material';
+import {
+    AppBar,
+    List,
+    Drawer,
+    Skeleton,
+    Toolbar,
+    CardMedia,
+    IconButton,
+    Typography,
+    Stack,
+    Button,
+    Divider,
+    Grid,
+    Paper,
+    Box,
+    Card,
+    CardContent,
+    CardActions,
+    Tooltip,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -15,13 +34,12 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useNavigate } from 'react-router-dom';
 import ViewContext from '../context/View';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import ProductContext from '../context/Products';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
 
 const drawerWidth = 240;
 
@@ -90,6 +108,24 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
     })
 );
 
+const ProductCard = styled(Card)(({ theme }) => ({
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    '&:hover': {
+        boxShadow: theme.shadows[5],
+    },
+}));
+
+const ProductImage = styled(CardMedia)(({ theme }) => ({
+    height: 200,
+    '&:hover': {
+        transform: 'scale(1.05)',
+        transition: 'transform 0.3s ease-in-out',
+    },
+}));
+
 export const Product = () => {
     const {
         isOpen,
@@ -106,19 +142,29 @@ export const Product = () => {
     const currentTheme = theme === 'light' ? lightTheme : darkTheme;
     const muiTheme = useTheme();
     const navigate = useNavigate();
-   
 
-    const { isLoading, isError, data, fetchProducts, activeCategory, categories, filteredProducts, setActiveCategory,addToBasket } = useContext(ProductContext);
-   
+    const {
+        isLoading,
+        isError,
+        data,
+        fetchProducts,
+        activeCategory,
+        categories,
+        filteredProducts,
+        setActiveCategory,
+        addToBasket,
+    } = useContext(ProductContext);
+
     useEffect(() => {
         fetchVersionFromMockService();
         fetchUserData();
     }, []);
+
     const handleAddToBasket = (product) => {
         addToBasket(product);
         navigate('/salescreen');
     };
-
+   
     return (
         <MuiThemeProvider theme={currentTheme}>
             <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
@@ -219,12 +265,12 @@ export const Product = () => {
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <DrawerHeader />
                     <Grid container justifyContent="center">
-                        <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2 }}>
+                        <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
                             {categories.map((category) => (
                                 <Button
                                     key={category}
                                     onClick={() => setActiveCategory(category)}
-                                    sx={{ color: 'black', backgroundColor: activeCategory === category ? '#bdbdbd' : 'inherit' }}
+                                    sx={{ color: 'black', backgroundColor: activeCategory === category ? '#bdbdbd' : 'inherit', m: 0.5 }}
                                 >
                                     {category}
                                 </Button>
@@ -242,11 +288,10 @@ export const Product = () => {
                                     <Typography variant="body1" color="text.secondary">No products found</Typography>
                                 ) : (
                                     filteredProducts.map((product) => (
-                                        <Grid item xs={12} sm={6} md={4} key={product.id}>
-                                            <Card>
-                                                <CardMedia
+                                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                                            <ProductCard>
+                                                <ProductImage
                                                     component="img"
-                                                    height="200"
                                                     image={product.image}
                                                     alt={product.name}
                                                 />
@@ -258,31 +303,28 @@ export const Product = () => {
                                                         {product.category}
                                                     </Typography>
                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            ID: {product.id}
-                                                        </Typography>
+                                                        {product.kod ? (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                Kod: {product.kod}
+                                                            </Typography>
+                                                        ) : (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                Barkod: {product.barkod}
+                                                            </Typography>
+                                                        )}
                                                         <Typography variant="h4">
-                                                            ${product.price}
+                                                            {product.price}₺
                                                         </Typography>
-                                                        
-                                                      
-
-
                                                     </Box>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                {product.kod && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        Kod: {product.kod}
-                                    </Typography>
-                                )}
-                                {product.barkod && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        Barkod: {product.barkod}
-                                    </Typography>
-                                )}
-                            </Box>  <Button onClick={() => handleAddToBasket(product)}>Ekle</Button>
                                                 </CardContent>
-                                            </Card>
+                                                <CardActions sx={{ justifyContent: 'center' }}>
+                                                    <Tooltip title="Add to Basket">
+                                                        <Button size="small" onClick={() => handleAddToBasket(product)}>
+                                                            <ShoppingCartIcon /> Ekle
+                                                        </Button>
+                                                    </Tooltip>
+                                                </CardActions>
+                                            </ProductCard>
                                         </Grid>
                                     ))
                                 )}

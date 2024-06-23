@@ -19,7 +19,9 @@ export const ProductProvider = ({ children }) => {
     const [quantity, setQuantity] = useState('');
     const [currentProduct, setCurrentProduct] = useState(null);
     const [partialPayments, setPartialPayments] = useState({});
+    const [completedTransaction, setCompletedTransaction] = useState(null); // Ödeme bilgilerini saklayacak state
 
+   
     
     const categories = ['All', 'Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
 
@@ -102,17 +104,23 @@ export const ProductProvider = ({ children }) => {
         return basket.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
+    // const getTotalPriceWithPromotion = () => {
+    //     return basket.reduce((total, item) => {
+    //         if (promotion === '3_for_2') {
+    //             const discountQuantity = Math.floor(item.quantity / 3);
+    //             const normalQuantity = item.quantity - discountQuantity;
+    //             return total + (normalQuantity * item.price);
+    //         }
+    //         return total + (item.quantity * item.price);
+    //     }, 0);
+    // };
     const getTotalPriceWithPromotion = () => {
         return basket.reduce((total, item) => {
-            if (promotion === '3_for_2') {
-                const discountQuantity = Math.floor(item.quantity / 3);
-                const normalQuantity = item.quantity - discountQuantity;
-                return total + (normalQuantity * item.price);
-            }
-            return total + (item.quantity * item.price);
+            const discountQuantity = Math.floor(item.quantity / 3);
+            const normalQuantity = item.quantity - discountQuantity;
+            return total + (normalQuantity * item.price);
         }, 0);
     };
-
     const clearBasket = () => {
         setBasket([]);
     };
@@ -127,7 +135,7 @@ export const ProductProvider = ({ children }) => {
         setBasket(prevBasket => prevBasket.filter(item => !selectedItems.includes(item.id)));
         setSelectedItems([]);
     };
-
+ 
     const applyPromotion = (promo) => {
         setPromotion(promo);
     };
@@ -152,14 +160,16 @@ export const ProductProvider = ({ children }) => {
         setQuantityInputMode(false);
     };
 
+
     return (
         <ProductContext.Provider value={{
-            isLoading, isError, data, page, hasMore, fetchProducts, handleScroll, setQuantity,
-            activeCategory, categories, filteredProducts, setActiveCategory, addToBasket, basket,
+            isLoading, isError,setIsError, data, page, setPage,hasMore, fetchProducts, handleScroll, setQuantity,
+            activeCategory, categories, filteredProducts, setActiveCategory, addToBasket, basket,currentProduct, setCurrentProduct,
             handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
             applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,
-            partialPayments,setPartialPayments
+            partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,         setCompletedTransaction,
+
         }}>
             {children}
         </ProductContext.Provider>
