@@ -123,43 +123,43 @@ export const ProductProvider = ({ children }) => {
     };
     const clearBasket = () => {
         setBasket([]);
-    };
-
+      };
+    
     const toggleSelectItem = (itemId) => {
         setSelectedItems(prevSelected => 
-            prevSelected.includes(itemId) ? prevSelected.filter(id => id !== itemId) : [...prevSelected, itemId]
+          prevSelected.includes(itemId) ? prevSelected.filter(id => id !== itemId) : [...prevSelected, itemId]
         );
-    };
-
-    const removeSelectedItems = () => {
+      };
+    
+      const removeSelectedItems = () => {
         setBasket(prevBasket => prevBasket.filter(item => !selectedItems.includes(item.id)));
         setSelectedItems([]);
-    };
- 
-    const applyPromotion = (promo) => {
+      };
+    
+      const applyPromotion = (promo) => {
         setPromotion(promo);
-    };
-
-    const adjustProductQuantity = (productId, quantity) => {
+      };
+    
+      const adjustProductQuantity = (productId, quantity) => {
         setBasket(prevBasket => {
-            return prevBasket.map(item =>
-                item.id === productId ? { ...item, quantity: quantity } : item
-            );
+          return prevBasket.map(item =>
+            item.id === productId ? { ...item, quantity: quantity } : item
+          );
         });
-    };
-  
-    const startQuantityInputMode = (productId) => {
+      };
+    
+      const startQuantityInputMode = (productId) => {
         setCurrentProductId(productId);
         setQuantity('');
         setQuantityInputMode(true);
-    };
-
-    const stopQuantityInputMode = () => {
+      };
+    
+      const stopQuantityInputMode = () => {
         setCurrentProductId(null);
         setQuantity('');
         setQuantityInputMode(false);
-    };
-
+      };
+    
 
     return (
         <ProductContext.Provider value={{
@@ -168,7 +168,7 @@ export const ProductProvider = ({ children }) => {
             handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
             applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,
-            partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,         setCompletedTransaction,
+            partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,    clearBasket,     setCompletedTransaction,
 
         }}>
             {children}

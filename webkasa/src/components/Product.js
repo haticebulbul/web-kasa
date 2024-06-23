@@ -288,7 +288,7 @@ export const Product = () => {
                                     <Typography variant="body1" color="text.secondary">No products found</Typography>
                                 ) : (
                                     filteredProducts.map((product) => (
-                                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.kod}>
                                             <ProductCard>
                                                 <ProductImage
                                                     component="img"
@@ -303,15 +303,10 @@ export const Product = () => {
                                                         {product.category}
                                                     </Typography>
                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                                        {product.kod ? (
-                                                            <Typography variant="body2" color="text.secondary">
+                                                         <Typography variant="body2" color="text.secondary">
                                                                 Kod: {product.kod}
                                                             </Typography>
-                                                        ) : (
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                Barkod: {product.barkod}
-                                                            </Typography>
-                                                        )}
+                                                    
                                                         <Typography variant="h4">
                                                             {product.price}₺
                                                         </Typography>

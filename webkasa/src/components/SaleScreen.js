@@ -273,38 +273,7 @@ export const SaleScreen = () => {
          fetchProducts(1); //
       }, []);
 
-      // const handleKeyPress = (key) => {
-      //   if (key === 'C') {
-      //     if (quantityInputMode) {
-      //       setQuantity('');
-      //     } else {
-      //       setBarcode('');
-      //     }
-      //   } else if (key === 'Enter') {
-      //     if (quantityInputMode) {
-      //       adjustProductQuantity(currentProductId, parseInt(quantity, 10));
-      //       setQuantity('');
-      //       setQuantityInputMode(false);
-      //       setCurrentProductId(null);
-      //     } else {
-      //       handleBarcodeScan(barcode);
-      //     }
-      //   } else {
-      //     if (quantityInputMode) {
-      //       setQuantity((prev) => prev + key);
-      //     } else {
-      //       setBarcode((prev) => prev + key);
-      //     }
-      //   }
-      // };
-      const handleKeyPress = (key) => {
-        if (key === 'Enter') {
-            adjustProductQuantity(currentProductId, parseInt(quantity, 10));
-            stopQuantityInputMode();
-        } else {
-            setQuantity(prev => prev + key);
-        }
-    };
+     
       const handleCategoryClick = (category) => {
         setActiveCategory(category);
         navigate('/products');
@@ -332,26 +301,7 @@ export const SaleScreen = () => {
         applyPromotion('3_for_2');
       }
     };
-    // const handleKeyPress = (key) => {
-    //   if (key === 'C') {
-    //     setQuantity('');
-    //   } else if (key === 'Enter') {
-    //     adjustProductQuantity(currentProductId, parseInt(quantity, 10));
-    //     setQuantity('');
-    //     setQuantityInputMode(false);
-    //     setCurrentProductId(null);
-    //   } else {
-    //     setQuantity((prev) => prev + key);
-    //   }
-    // };
-  //   const handleKeyPress = (key) => {
-  //     if (key === 'Enter') {
-  //         adjustProductQuantity(currentProductId, parseInt(quantity, 10));
-  //         stopQuantityInputMode();
-  //     } else {
-  //         setQuantity(prev => prev + key);
-  //     }
-  // };
+   
    
   return (
     <MuiThemeProvider theme={currentTheme}>
@@ -564,115 +514,115 @@ export const SaleScreen = () => {
               </Stack>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Grid container spacing={3} sx={{ height: '100%' }}>
-                <Grid item xs={12} md={8}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      <Typography variant="h6" gutterBottom>
-                        Products
-                      </Typography>
-                      <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
-                        <InfiniteScroll
-                          dataLength={basket.length}
-                          next={fetchMoreData}
-                          hasMore={hasMore}
-                          scrollableTarget="scrollable-table"
+      <Grid container spacing={3} sx={{ height: '100%' }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="h6" gutterBottom>
+                Products
+              </Typography>
+              <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
+                <InfiniteScroll
+                  dataLength={basket.length}
+                  next={fetchMoreData}
+                  hasMore={hasMore}
+                  scrollableTarget="scrollable-table"
+                >
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {showCheckboxes && (
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
+                              checked={basket.length > 0 && selectedItems.length === basket.length}
+                              onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
+                            />
+                          </TableCell>
+                        )}
+                        <TableCell>Ürün</TableCell>
+                        <TableCell align="right">Fiyat</TableCell>
+                        <TableCell align="right">Adet</TableCell>
+                        <TableCell align="right">Toplam</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {basket.map((item) => (
+                        <TableRow
+                          key={item.id}
+                          hover
+                          role="checkbox"
+                          aria-checked={selectedItems.includes(item.id)}
+                          tabIndex={-1}
+                          selected={selectedItems.includes(item.id)}
                         >
-                          <Table stickyHeader aria-label="sticky table">
-                            <TableHead>
-                              <TableRow>
-                                {showCheckboxes && (
-                                  <TableCell padding="checkbox">
-                                    <Checkbox
-                                      indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
-                                      checked={basket.length > 0 && selectedItems.length === basket.length}
-                                      onChange={(e) => toggleSelectItem(e.target.checked ? basket : [])}
-                                    />
-                                  </TableCell>
-                                )}
-                                <TableCell>Ürün</TableCell>
-                                <TableCell align="right">Fiyat</TableCell>
-                                <TableCell align="right">Adet</TableCell>
-                                <TableCell align="right">Toplam</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {basket.map((item) => (
-                                <TableRow
-                                  key={item.id}
-                                  hover
-                                  role="checkbox"
-                                  aria-checked={selectedItems.includes(item)}
-                                  tabIndex={-1}
-                                  selected={selectedItems.includes(item)}
-                                >
-                                  {showCheckboxes && (
-                                    <TableCell padding="checkbox">
-                                      <Checkbox
-                                        checked={selectedItems.includes(item)}
-                                        onChange={() => toggleSelectItem(item)}
-                                      />
-                                    </TableCell>
-                                  )}
-                                  <TableCell component="th" scope="row">
-                                    {item.name}
-                                  </TableCell>
-                                  <TableCell align="right">{item.price}₺</TableCell>
-                                  <TableCell align="right">{item.quantity}</TableCell>
-                                  <TableCell align="right">{item.price * item.quantity}₺</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </InfiniteScroll>
-                      </TableContainer>
-                      <Typography variant="h6" align="right" gutterBottom>Ara Toplam: ${getTotalPrice().toFixed(2)}</Typography>
-                      <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat : ${getTotalPriceWithPromotion().toFixed(2)}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
-                        {paymentMethods.map((method) => (
-                          <Button
-                            key={method}
-                            variant="contained"
-                            onClick={() => handlePaymentMethod(method)}
-                            fullWidth
-                            sx={{ height: '50px' }}
-                          >
-                            {method}
-                          </Button>
-                        ))}
-                      </Box>
-                      <Divider sx={{ my: 2 }} />
-                      <TextField
+                          {showCheckboxes && (
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={selectedItems.includes(item.id)}
+                                onChange={() => toggleSelectItem(item.id)}
+                              />
+                            </TableCell>
+                          )}
+                          <TableCell component="th" scope="row">
+                            {item.name}
+                          </TableCell>
+                          <TableCell align="right">{item.price}₺</TableCell>
+                          <TableCell align="right">{item.quantity}</TableCell>
+                          <TableCell align="right">{item.price * item.quantity}₺</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </InfiniteScroll>
+              </TableContainer>
+              <Typography variant="h6" align="right" gutterBottom>Ara Toplam: {getTotalPrice().toFixed(2)}₺</Typography>
+              <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat: {getTotalPriceWithPromotion().toFixed(2)}₺</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
+                {paymentMethods.map((method) => (
+                  <Button
+                    key={method}
+                    variant="contained"
+                    onClick={() => handlePaymentMethod(method)}
+                    fullWidth
+                    sx={{ height: '50px' }}
+                  >
+                    {method}
+                  </Button>
+                ))}
+              </Box>
+              <Divider sx={{ my: 2 }} />
+              <TextField
                 label="Miktar"
                 variant="outlined"
                 fullWidth
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 sx={{ mb: 2 }}
-            />
-            <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
+              />
+              <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
                 {keys.map((key) => (
-                    <Button
-                        key={key}
-                        variant="outlined"
-                        onClick={() => handleKeyPress(key)}
-                        sx={{ width: '80px', height: '60px', marginBottom: 1 }}
-                    >
-                        {key}
-                    </Button>
+                  <Button
+                    key={key}
+                    variant="outlined"
+                    // onClick={() => handleKeyPress(key)}
+                    sx={{ width: '80px', height: '60px', marginBottom: 1 }}
+                  >
+                    {key}
+                  </Button>
                 ))}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </Grid>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Grid>
           </Grid>
         </Box>
       </Box>
