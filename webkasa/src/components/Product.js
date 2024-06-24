@@ -277,53 +277,52 @@ export const Product = () => {
                             ))}
                         </Stack>
                         <Paper sx={{ width: '80%', maxHeight: 600, margin: '0 16px', overflowY: 'auto', padding: '16px' }} elevation={7}>
-                            <Grid container spacing={2} justifyContent="center">
-                                {isLoading ? (
-                                    <Grid item xs={12}>
-                                        <Skeleton variant="rectangular" height={300} />
-                                    </Grid>
-                                ) : isError ? (
-                                    <Typography variant="body1" color="error">Error loading data</Typography>
-                                ) : filteredProducts.length === 0 ? (
-                                    <Typography variant="body1" color="text.secondary">No products found</Typography>
-                                ) : (
-                                    filteredProducts.map((product) => (
-                                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.kod}>
-                                            <ProductCard>
-                                                <ProductImage
-                                                    component="img"
-                                                    image={product.image}
-                                                    alt={product.name}
-                                                />
-                                                <CardContent>
-                                                    <Typography gutterBottom variant="h6" component="div">
-                                                        {product.name}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {product.category}
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                                         <Typography variant="body2" color="text.secondary">
-                                                                Kod: {product.kod}
-                                                            </Typography>
-                                                    
-                                                        <Typography variant="h4">
-                                                            {product.price}₺
-                                                        </Typography>
-                                                    </Box>
-                                                </CardContent>
-                                                <CardActions sx={{ justifyContent: 'center' }}>
-                                                    <Tooltip title="Add to Basket">
-                                                        <Button size="small" onClick={() => handleAddToBasket(product)}>
-                                                            <ShoppingCartIcon /> Ekle
-                                                        </Button>
-                                                    </Tooltip>
-                                                </CardActions>
-                                            </ProductCard>
-                                        </Grid>
-                                    ))
-                                )}
-                            </Grid>
+                        <Grid container spacing={2} justifyContent="center">
+    {isLoading ? (
+      <Grid item xs={12}>
+        <Skeleton variant="rectangular" height={300} />
+      </Grid>
+    ) : isError ? (
+      <Typography variant="body1" color="error">Error loading data</Typography>
+    ) : filteredProducts.length === 0 ? (
+      <Typography variant="body1" color="text.secondary">No products found</Typography>
+    ) : (
+      filteredProducts.map((product) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+          <ProductCard>
+            <ProductImage
+              component="img"
+              image={product.image}
+              alt={product.name}
+            />
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="div">
+               {product.id}  {product.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {product.category}
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Barkod: {product.barcode}
+                </Typography>
+                <Typography variant="h4">
+                  {product.price}₺
+                </Typography>
+              </Box>
+            </CardContent>
+            <CardActions sx={{ justifyContent: 'center' }}>
+              <Tooltip title="Add to Basket">
+                <Button size="small" onClick={() => handleAddToBasket(product)}>
+                  <ShoppingCartIcon /> Ekle
+                </Button>
+              </Tooltip>
+            </CardActions>
+          </ProductCard>
+        </Grid>
+      ))
+    )}
+  </Grid>
                         </Paper>
                     </Grid>
                 </Box>

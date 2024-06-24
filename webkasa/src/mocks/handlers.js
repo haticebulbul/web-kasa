@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { faker } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
+import { faker } from '@faker-js/faker'; // Sahte (fake) veri oluşturmak için kullanılır.
+import { v4 as uuidv4 } from 'uuid'; //Benzersiz UUID (evrensel benzersiz tanımlayıcı) oluşturmak için kullanılır. Bu, her ürün için benzersiz bir barkod değeri oluşturmak için kullanılır.
 
 
 
@@ -120,17 +120,14 @@ const categories = ['Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştır
 const getRandomCategory = () => {
   return categories[Math.floor(Math.random() * categories.length)];
 };
-
 const generateProducts = (count) => {
+  console.log('genereteproduct')
   const products = [];
   for (let i = 1; i <= count; i++) {
     const id = i; // id değerini sıralı olarak atıyoruz (1, 2, 3, ...)
-    const randomChars = Math.random().toString(36).substring(2, 7); // Rastgele karakterler
-
-    // const kod = `59${i.toString().padStart(11, '0')}${randomChars}`; // Kod formatı: 5901234567304 gibi
     products.push({
       id: id,
-      kod:uuidv4(),
+      barcode: uuidv4(),
       name: faker.commerce.productName(),
       price: parseFloat(faker.commerce.price()),
       image: faker.image.imageUrl(),
@@ -139,6 +136,24 @@ const generateProducts = (count) => {
   }
   return products;
 };
+// const generateProducts = (count) => {
+//   const products = [];
+//   for (let i = 1; i <= count; i++) {
+//     const id = i; // id değerini sıralı olarak atıyoruz (1, 2, 3, ...)
+//     const randomChars = Math.random().toString(36).substring(2, 7); // Rastgele karakterler
+
+//     // const barcode = `59${i.toString().padStart(11, '0')}${randomChars}`; // Kod formatı: 5901234567304 gibi
+//     products.push({
+//       id: id,
+//       barcode:uuidv4(),
+//       name: faker.commerce.productName(),
+//       price: parseFloat(faker.commerce.price()),
+//       image: faker.image.imageUrl(),
+//       category: getRandomCategory(),
+//     });
+//   }
+//   return products;
+// };
 
 const allProducts = generateProducts(1000);
 export const handlers = [ 

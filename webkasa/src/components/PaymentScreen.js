@@ -115,7 +115,7 @@ const PaymentScreen = () => {
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme();
   const navigate = useNavigate();
-  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket,            setCompletedTransaction,
+  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket,           
 
     selectedItems, getTotalPriceWithPromotion, quantityInputMode, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments
   } = useContext(ProductContext);
@@ -136,35 +136,44 @@ const PaymentScreen = () => {
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [transactionCompleted, setCompletedTransaction] = useState(false);
 
   useEffect(() => {
     const remainingAmount = calculateRemainingAmount();
     setIsCheckoutEnabled(remainingAmount <= 0);
   }, [partialPayments]);
 
-const handleKeyPress = (key) => {
-  const totalPriceWithPromotion = getTotalPriceWithPromotion();
-  const totalPaid = calculateTotalPaid();
-  const remainingAmount = totalPriceWithPromotion - totalPaid;
-
-  if (key === 'sil') {
-    setPaymentAmount(paymentAmount.slice(0, -1));
-  } else if (key === 'onayla') {
-    if (selectedMethod) {
-      const amount = parseFloat(paymentAmount);
-      if (!isNaN(amount) && amount > 0) {
-        if (selectedMethod === 'Kredi' && amount > remainingAmount) {
-          alert('Girilen miktar toplam fiyattan fazla olamaz.');
-        } else if (selectedMethod === 'Nakit') {
-          if (amount >= remainingAmount) {
-            setPartialPayments(prev => ({
-              ...prev,
-              [selectedMethod]: (prev[selectedMethod] || 0) + amount,
-            }));
-            setPaymentAmount('');
-            setChangeAmount(amount - remainingAmount);
+  const handleKeyPress = (key) => {
+    if (transactionCompleted) return; // Prevent key press actions if the transaction is complete
+  
+    const totalPriceWithPromotion = getTotalPriceWithPromotion();
+    const totalPaid = calculateTotalPaid();
+    const remainingAmount = totalPriceWithPromotion - totalPaid;
+  
+    if (key === 'sil') {
+      setPaymentAmount(paymentAmount.slice(0, -1));
+    } else if (key === 'onayla') {
+      if (selectedMethod) {
+        const amount = parseFloat(paymentAmount);
+        if (!isNaN(amount) && amount > 0) {
+          if (selectedMethod === 'Kredi' && amount > remainingAmount) {
+            alert('Girilen miktar toplam fiyattan fazla olamaz.');
+          } else if (selectedMethod === 'Nakit') {
             if (amount >= remainingAmount) {
-              // clearBasket(); // Kalan tutar 0 veya para üstü pozitif olduğunda sepeti temizle
+              setPartialPayments(prev => ({
+                ...prev,
+                [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+              }));
+              setPaymentAmount('');
+              setChangeAmount(amount - remainingAmount);
+            } else {
+              setPartialPayments(prev => ({
+                ...prev,
+                [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+              }));
+              setPaymentAmount('');
+              setChangeAmount(null);
             }
           } else {
             setPartialPayments(prev => ({
@@ -172,29 +181,22 @@ const handleKeyPress = (key) => {
               [selectedMethod]: (prev[selectedMethod] || 0) + amount,
             }));
             setPaymentAmount('');
-            setChangeAmount(null);
-          }
-        } else {
-          setPartialPayments(prev => ({
-            ...prev,
-            [selectedMethod]: (prev[selectedMethod] || 0) + amount,
-          }));
-          setPaymentAmount('');
-          if (selectedMethod === 'Kredi') {
-            clearBasket(); // Kredi kartıyla ödeme yapıldığında sepeti temizle
+            if (selectedMethod === 'Kredi') {
+              clearBasket(); // Kredi kartıyla ödeme yapıldığında sepeti temizle
+            }
           }
         }
       }
-    }
-  } else {
-    const newPaymentAmount = parseFloat(paymentAmount + key);
-    if (selectedMethod === 'Kredi' && newPaymentAmount > remainingAmount) {
-      alert('Girilen miktar toplam fiyattan fazla olamaz.');
     } else {
-      setPaymentAmount(prev => prev + key);
+      const newPaymentAmount = parseFloat(paymentAmount + key);
+      if (selectedMethod === 'Kredi' && newPaymentAmount > remainingAmount) {
+        alert('Girilen miktar toplam fiyattan fazla olamaz.');
+      } else {
+        setPaymentAmount(prev => prev + key);
+      }
     }
-  }
-};
+  };
+  
 
   const handlePaymentMethod = (method) => {
     setSelectedMethod(method);
@@ -202,11 +204,10 @@ const handleKeyPress = (key) => {
     if (method === 'Belge İptal') {
         clearBasket();
     } else if (method === 'Satır İptal') {
-      setShowCheckboxes(true); 
-        // setShowCheckboxes(prevShowCheckboxes => !prevShowCheckboxes);
-        // if (showCheckboxes) {
-        //     removeSelectedItems();
-        // }
+      setShowCheckboxes(prevShowCheckboxes => !prevShowCheckboxes);
+      if (showCheckboxes) {
+        removeSelectedItems();
+      }
     } else if (method === 'Belge Bitir') {
         if (isCheckoutEnabled) {
             setCompletedTransaction({
@@ -230,10 +231,16 @@ const handlePaymentComplete = () => {
     clearBasket();
     setPartialPayments({});
     setChangeAmount(totalPaid - totalPriceWithPromotion);
+    disableKeys(); // Function to disable keys
   } else {
     alert('Lütfen toplam ücreti ödeyin.');
   }
 };
+const disableKeys = () => {
+  setKeysDisabled(true);
+};
+
+const [keysDisabled, setKeysDisabled] = useState(false);
 const handleRowCancel = () => {
   if (showCheckboxes && selectedItems.length > 0) {
     removeSelectedItems();
@@ -242,15 +249,15 @@ const handleRowCancel = () => {
     alert('Lütfen iptal etmek için bir satır seçin.');
   }
 };
-  const calculateTotalPaid = () => {
-    return Object.values(partialPayments).reduce((total, amount) => total + amount, 0);
-  };
+const calculateTotalPaid = () => {
+  return Object.values(partialPayments).reduce((total, amount) => total + amount, 0);
+};
 
-  const calculateRemainingAmount = () => {
-    const totalPrice = getTotalPriceWithPromotion();
-    const totalPaid = calculateTotalPaid();
-    return totalPrice - totalPaid;
-  };
+const calculateRemainingAmount = () => {
+  const totalPrice = getTotalPriceWithPromotion();
+  const totalPaid = calculateTotalPaid();
+  return totalPrice - totalPaid;
+};
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
@@ -371,150 +378,138 @@ const handleRowCancel = () => {
         <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, overflow: 'hidden' }}>
           <DrawerHeader />
           <Grid container spacing={3} sx={{ height: 'calc(100% - 64px)' }}>
-            <Grid item xs={12} sm={6} md={8} sx={{ height: '100%' }}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Products
-                  </Typography>
-                  <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
-                    <InfiniteScroll
-                      dataLength={basket.length}
-                      next={fetchMoreData}
-                      hasMore={hasMore}
-                      scrollableTarget="scrollable-table"
-                    >
-                      <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                          <TableRow>
-                            {showCheckboxes && (
-                              <TableCell padding="checkbox">
-                                <Checkbox
-                                  indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
-                                  checked={basket.length > 0 && selectedItems.length === basket.length}
-                                  onChange={(e) => toggleSelectItem(e.target.checked ? basket : [])}
-                                />
-                              </TableCell>
-                            )}
-                            <TableCell>Ürün</TableCell>
-                            <TableCell align="right">Fiyat</TableCell>
-                            <TableCell align="right">Adet</TableCell>
-                            <TableCell align="right">Toplam</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {basket.map((item) => (
-                            <TableRow
-                              key={item.id}
-                              hover
-                              role="checkbox"
-                              aria-checked={selectedItems.includes(item)}
-                              tabIndex={-1}
-                              selected={selectedItems.includes(item)}
-                            >
-                              {showCheckboxes && (
-                                <TableCell padding="checkbox">
-                                  <Checkbox
-                                    checked={selectedItems.includes(item)}
-                                    onChange={() => toggleSelectItem(item)}
-                                  />
-                                </TableCell>
-                              )}
-                              <TableCell component="th" scope="row">
-                                {item.name}
-                              </TableCell>
-                              <TableCell align="right">{item.price}</TableCell>
-                              <TableCell align="right">{item.quantity}</TableCell>
-                              <TableCell align="right">{item.price * item.quantity}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </InfiniteScroll>
-                  </TableContainer>
-                  {/* <Typography variant="h6" align="right" gutterBottom>
-                    Total: {getTotalPriceWithPromotion().toFixed(2)} 
-                  </Typography> */}
-                  <Typography variant="h6"align="right" gutterBottom>Ara Toplam: ${getTotalPrice().toFixed(2)}</Typography>
-                  <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat : ${getTotalPriceWithPromotion().toFixed(2)}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} sx={{ height: '100%' }}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                 
-                  <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
-                    {paymentMethods.map((method) => (
-                      <Button
-                        key={method}
-                        variant="contained"
-                        color={selectedMethod === method ? 'primary' : 'secondary'}
-                        onClick={() => handlePaymentMethod(method)}
-                        fullWidth
-                        sx={{ height: '50px' }}
-                      >
-                        {method}
-                      </Button>
-                    ))}
-                  </Box>
-                  <Divider sx={{ my: 2 }} />
-               
-                  <TextField
-                    fullWidth
-                    value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(e.target.value)}
-                    sx={{ mb: 2 }}
-                    placeholder="Enter amount"
-                  />
-                  <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
-                    {keys.map((key) => (
-                      <Button
-                        key={key}
-                        variant="outlined"
-                        onClick={() => handleKeyPress(key)}
-                        sx={{ width: '80px', height: '60px', marginBottom: 1 }}
-                      >
-                        {key}
-                      </Button>
-                    ))}
-                  </Box>
-                  
-                  {changeAmount !== null && (
-                    <Typography variant="h6"align="right"  gutterBottom>
-                      Para Üstü: {changeAmount.toFixed(2)} TL
-                    </Typography>
+  <Grid item xs={12} sm={6} md={8} sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%' }}>
+      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h6" gutterBottom>
+          Products
+        </Typography>
+        <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
+          <InfiniteScroll
+            dataLength={basket.length}
+            next={fetchMoreData}
+            hasMore={hasMore}
+            scrollableTarget="scrollable-table"
+          >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {showCheckboxes && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
+                        checked={basket.length > 0 && selectedItems.length === basket.length}
+                        onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
+                      />
+                    </TableCell>
                   )}
-                  {changeAmount === null && (
-                    <Typography variant="h6" align='right' gutterBottom>
-                      Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
-                    </Typography>
-                  )}
-                   {/* <Box sx={{ mt: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handlePaymentComplete}
-                  disabled={!isCheckoutEnabled}
-                >
-                  Ödemeyi Tamamla
-                </Button>
-                {changeAmount !== null && (
-                  <Typography variant="h6" sx={{ mt: 2 }}>
-                    Para Üstü: {changeAmount.toFixed(2)}
-                  </Typography>
-                )}
-              </Box> */}
-                  {/* <Typography variant="h6" gutterBottom>
-                    Para Üstü: {calculateRemainingAmount().toFixed(2)} 
-                  </Typography>
-                  <Typography variant="h6" align="right" gutterBottom>
-                    Para Üstü: {calculateRemainingAmount().toFixed(2)} 
-                  </Typography> */}
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+                  <TableCell>Ürün</TableCell>
+                  <TableCell align="right">Fiyat</TableCell>
+                  <TableCell align="right">Adet</TableCell>
+                  <TableCell align="right">Toplam</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {basket.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    hover
+                    role="checkbox"
+                    aria-checked={selectedItems.includes(item.id)}
+                    tabIndex={-1}
+                    selected={selectedItems.includes(item.id)}
+                    onClick={() => {
+                      setSelectedItemId(item.id);
+                      setQuantity('');
+                    }}
+                  >
+                    {showCheckboxes && (
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedItems.includes(item.id)}
+                          onChange={() => toggleSelectItem(item.id)}
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell component="th" scope="row">
+                      {item.name}
+                    </TableCell>
+                    <TableCell align="right">{item.price}</TableCell>
+                    <TableCell align="right">{item.quantity}</TableCell>
+                    <TableCell align="right">{item.price * item.quantity}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </InfiniteScroll>
+        </TableContainer>
+        <Typography variant="h6" align="right" gutterBottom>Ara Toplam: ${getTotalPrice().toFixed(2)}</Typography>
+        <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat : ${getTotalPriceWithPromotion().toFixed(2)}</Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+  <Grid item xs={12} sm={6} md={4} sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%' }}>
+      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
+          {paymentMethods.map((method) => (
+            <Button
+              key={method}
+              variant="contained"
+              color={selectedMethod === method ? 'primary' : 'secondary'}
+              onClick={() => handlePaymentMethod(method)}
+              fullWidth
+              sx={{ height: '50px' }}
+            >
+              {method}
+            </Button>
+          ))}
+        </Box>
+        <Divider sx={{ my: 2 }} />
+        <TextField
+          fullWidth
+          value={paymentAmount}
+          onChange={(e) => setPaymentAmount(e.target.value)}
+          sx={{ mb: 2 }}
+          placeholder="Enter amount"
+          disabled={keysDisabled}
+        />
+        <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
+          {keys.map((key) => (
+            <Button
+              key={key}
+              variant="outlined"
+              onClick={() => handleKeyPress(key)}
+              sx={{ width: '80px', height: '60px', marginBottom: 1 }}
+              disabled={keysDisabled}
+            >
+              {key}
+            </Button>
+          ))}
+        </Box>
+        {changeAmount !== null && (
+          <Typography variant="h6" align="right" gutterBottom>
+            Para Üstü: {changeAmount.toFixed(2)} TL
+          </Typography>
+        )}
+        {changeAmount === null && (
+          <Typography variant="h6" align="right" gutterBottom>
+            Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
+          </Typography>
+        )}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePaymentComplete}
+          disabled={!isCheckoutEnabled || transactionCompleted}
+        >
+          Ödemeyi Tamamla
+        </Button>
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
+
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Enter Email Address</DialogTitle>
             <DialogContent>

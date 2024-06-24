@@ -20,6 +20,7 @@ export const ProductProvider = ({ children }) => {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [partialPayments, setPartialPayments] = useState({});
     const [completedTransaction, setCompletedTransaction] = useState(null); // Ödeme bilgilerini saklayacak state
+    const [promotionActive, setPromotionActive] = useState(false); // Kampanyanın aktif olup olmadığını belirten state
 
    
     
@@ -27,6 +28,7 @@ export const ProductProvider = ({ children }) => {
 
     const fetchProducts = useCallback(async (pageNum = 1, resetData = false) => {
         try {
+            console.log("fetchproducts " + pageNum )
             setIsLoading(true);
             setIsError(false);
             const resPro = await fetch(`/products?page=${pageNum}`);
@@ -114,13 +116,27 @@ export const ProductProvider = ({ children }) => {
     //         return total + (item.quantity * item.price);
     //     }, 0);
     // };
+    // const getTotalPriceWithPromotion = () => {
+    //     return basket.reduce((total, item) => {
+    //         const discountQuantity = Math.floor(item.quantity / 3);
+    //         const normalQuantity = item.quantity - discountQuantity;
+    //         return total + (normalQuantity * item.price);
+    //     }, 0);
+    // };
     const getTotalPriceWithPromotion = () => {
+        if (!promotionActive) {
+            return getTotalPrice();
+        }
+
         return basket.reduce((total, item) => {
-            const discountQuantity = Math.floor(item.quantity / 3);
-            const normalQuantity = item.quantity - discountQuantity;
-            return total + (normalQuantity * item.price);
+            if (item.quantity >= 3) {
+                const discountQuantity = Math.floor(item.quantity / 3);
+                const normalQuantity = item.quantity - discountQuantity;
+                return total + (normalQuantity * item.price);
+            }
+            return total + (item.quantity * item.price);
         }, 0);
-    };
+    }
     const clearBasket = () => {
         setBasket([]);
       };
@@ -138,7 +154,8 @@ export const ProductProvider = ({ children }) => {
     
       const applyPromotion = (promo) => {
         setPromotion(promo);
-      };
+        setPromotionActive(!promotionActive); // Kampanya aktifliğini değiştirir
+    };
     
       const adjustProductQuantity = (productId, quantity) => {
         setBasket(prevBasket => {
@@ -165,7 +182,7 @@ export const ProductProvider = ({ children }) => {
         <ProductContext.Provider value={{
             isLoading, isError,setIsError, data, page, setPage,hasMore, fetchProducts, handleScroll, setQuantity,
             activeCategory, categories, filteredProducts, setActiveCategory, addToBasket, basket,currentProduct, setCurrentProduct,
-            handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,
+            handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,setBasket,
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
             applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,
             partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,    clearBasket,     setCompletedTransaction,

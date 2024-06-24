@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect,useCallback,useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { AppBar,Table,TableCell,TableRow,TableBody,TableContainer,TableHead, List,ButtonBase,TextField,InputBase,InputAdornment,Checkbox, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
@@ -250,7 +250,7 @@ export const SaleScreen = () => {
         handleLogout,
       } = useContext(ViewContext);
       const [input, setInput] = useState('');
-      const { getTotalPrice ,barcode,handleBarcodeScan, 
+      const { getTotalPrice ,barcode,handleBarcodeScan, setBasket,
         setBarcode, handleInputChange, handleScan, fetchProducts,stopQuantityInputMode,currentProduct, setCurrentProduct,
          hasMore,setActiveCategory,basket,adjustProductQuantity ,setQuantityInputMode,quantityInputMode
          ,currentProductId,setCurrentProductId,clearBasket,removeSelectedItems,selectedItems,toggleSelectItem,
@@ -262,7 +262,7 @@ export const SaleScreen = () => {
       const navigate = useNavigate();
       const [quantity, setQuantity] = useState('');
       const [inputMode, setInputMode] = useState('barcode');
-      const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'C', 'Enter']
+      const keys = useMemo(() => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'C', 'Enter'], []);
       const paymentMethods = [
        
         'Ödemeye Geç', 'Belge İptal', 'Satır İptal','Kampanyalar'
@@ -286,7 +286,22 @@ export const SaleScreen = () => {
     };
     const [showCheckboxes, setShowCheckboxes] = useState(false);
     const [showPromotionOptions, setShowPromotionOptions] = useState(false);
-
+    const [selectedItemId, setSelectedItemId] = useState(null);
+    const handleKeyPress = (key) => {
+      if (selectedItemId !== null) {
+        if (key === 'Enter') {
+          updateBasketQuantity(selectedItemId, quantity);
+          setQuantity('');
+          setSelectedItemId(null);
+        } else {
+          const newQuantity = key === 'C' ? '' : quantity + key;
+          setQuantity(newQuantity);
+          if (key !== 'C') {
+            updateBasketQuantity(selectedItemId, newQuantity);
+          }
+        }
+      }
+    };
     const handlePaymentMethod = (method) => {
       if (method === 'Belge İptal') {
         clearBasket();
@@ -301,8 +316,38 @@ export const SaleScreen = () => {
         applyPromotion('3_for_2');
       }
     };
-   
-   
+    const debounce = (func, wait) => {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    };
+  
+    const updateBasketQuantity = useCallback(debounce((itemId, newQuantity) => {
+      setBasket(prevBasket =>
+        prevBasket.map(item =>
+          item.id === itemId ? { ...item, quantity: Number(newQuantity) } : item
+        )
+      );
+    }, 300), []);
+  
+    const handleEnterPress = useCallback((event) => {
+      if (event.key === 'Enter' && selectedItemId !== null) {
+        updateBasketQuantity(selectedItemId, quantity);
+        setQuantity('');
+        setSelectedItemId(null);
+        event.preventDefault();  // Prevent Enter key from inserting 'Enter' into the input field
+      }
+    }, [quantity, selectedItemId, updateBasketQuantity]);
+  
+    useEffect(() => {
+      window.addEventListener('keydown', handleEnterPress);
+      return () => {
+        window.removeEventListener('keydown', handleEnterPress);
+      };
+    }, [handleEnterPress]);
+  
   return (
     <MuiThemeProvider theme={currentTheme}>
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'background.default', minHeight: '100vh' }}>
@@ -405,225 +450,230 @@ export const SaleScreen = () => {
         </StyledDrawer>
   
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <Stack
-                display={'flex'}
-                flexDirection={'column'}
-                alignItems={'center'}
-                sx={{ marginTop: '16px' }}
-              >
-                <InputBase
-                  type="text"
-                  value={barcode}
-                  onChange={handleInputChange}
-                  placeholder="Enter barcode"
-                  sx={{
-                    width: '80%',
-                    marginBottom: '20px',
-                    padding: '10px',
-                    backgroundColor: '#fff',
+        <Grid container spacing={3}>
+      <Grid item xs={12} md={4}>
+        <Stack
+          display={'flex'}
+          flexDirection={'column'}
+          alignItems={'center'}
+          sx={{ marginTop: '16px' }}
+        >
+          <InputBase
+            type="text"
+            value={barcode}
+            onChange={handleInputChange}
+            placeholder="Enter barcode"
+            sx={{
+              width: '80%',
+              marginBottom: '20px',
+              padding: '10px',
+              backgroundColor: '#fff',
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            }}
+            endAdornment={
+              <InputAdornment position="end">
+                <button
+                  onClick={handleScan}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#546e7a',
+                    color: '#fff',
+                    border: 'none',
                     borderRadius: '4px',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    cursor: 'pointer',
                   }}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <button
-                        onClick={handleScan}
-                        style={{
-                          padding: '8px 16px',
-                          backgroundColor: '#546e7a',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Sepete Ekle
-                      </button>
-                    </InputAdornment>
-                  }
-                />
-                <Paper
-                  sx={{
-                    width: { xs: '100%', md: 400 },
-                    height: 500,
-                    margin: "0 16px",
-                    backgroundColor: "#cfd8dc",
-                    padding: '16px',
+                >
+                  Sepete Ekle
+                </button>
+              </InputAdornment>
+            }
+          />
+          <Paper
+            sx={{
+              width: { xs: '100%', md: 400 },
+              height: 500,
+              margin: "0 16px",
+              backgroundColor: "#cfd8dc",
+              padding: '16px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}
+            elevation={7}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {images.map((image) => (
+                <ImageButton
+                  focusRipple
+                  key={image.title}
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    margin: '8px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    flexShrink: 0,
                   }}
-                  elevation={7}
+                  onClick={() => handleCategoryClick(image.title)}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      width: '100%',
-                    }}
-                  >
-                    {images.map((image, index) => (
-                      <ImageButton
-                        focusRipple
-                        key={image.title}
-                        style={{
-                          width: '80px',
-                          height: '80px',
-                          margin: '8px',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          overflow: 'hidden',
-                          position: 'relative',
-                          borderRadius: '4px',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                          flexShrink: 0,
-                        }}
-                        onClick={() => handleCategoryClick(image.title)}
-                      >
-                        <ImageSrc style={{ backgroundImage: `url(${image.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                        <ImageBackdrop className="MuiImageBackdrop-root" />
-                        <Image>
-                          <Typography
-                            component="span"
-                            variant="subtitle1"
-                            color="inherit"
-                            sx={{
-                              position: 'relative',
-                              p: 2,
-                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                              color: '#fff',
-                              borderRadius: '4px',
-                              textAlign: 'center',
-                              width: '100%',
-                            }}
-                          >
-                            {image.title}
-                            <ImageMarked className="MuiImageMarked-root" />
-                          </Typography>
-                        </Image>
-                      </ImageButton>
-                    ))}
-                  </Box>
-                </Paper>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={8}>
+                  <ImageSrc style={{ backgroundImage: `url(${image.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <ImageBackdrop className="MuiImageBackdrop-root" />
+                  <Image>
+                    <Typography
+                      component="span"
+                      variant="subtitle1"
+                      color="inherit"
+                      sx={{
+                        position: 'relative',
+                        p: 2,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        color: '#fff',
+                        borderRadius: '4px',
+                        textAlign: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      {image.title}
+                      <ImageMarked className="MuiImageMarked-root" />
+                    </Typography>
+                  </Image>
+                </ImageButton>
+              ))}
+            </Box>
+          </Paper>
+        </Stack>
+      </Grid>
+      <Grid item xs={12} md={8}>
       <Grid container spacing={3} sx={{ height: '100%' }}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" gutterBottom>
-                Products
-              </Typography>
-              <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
-                <InfiniteScroll
-                  dataLength={basket.length}
-                  next={fetchMoreData}
-                  hasMore={hasMore}
-                  scrollableTarget="scrollable-table"
-                >
-                  <Table stickyHeader aria-label="sticky table">
-                    <TableHead>
-                      <TableRow>
+      <Grid item xs={12} md={8}>
+        <Card sx={{ height: '100%' }}>
+          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h6" gutterBottom>
+              Products
+            </Typography>
+            <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
+              <InfiniteScroll
+                dataLength={basket.length}
+                next={fetchMoreData}
+                hasMore={hasMore}
+                scrollableTarget="scrollable-table"
+              >
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
+                    <TableRow>
+                      {showCheckboxes && (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
+                            checked={basket.length > 0 && selectedItems.length === basket.length}
+                            onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>Ürün</TableCell>
+                      <TableCell align="right">Fiyat</TableCell>
+                      <TableCell align="right">Adet</TableCell>
+                      <TableCell align="right">Toplam</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {basket.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        hover
+                        role="checkbox"
+                        aria-checked={selectedItems.includes(item.id)}
+                        tabIndex={-1}
+                        selected={selectedItems.includes(item.id)}
+                        onClick={() => {
+                          setSelectedItemId(item.id);
+                          setQuantity('');
+                        }}
+                      >
                         {showCheckboxes && (
                           <TableCell padding="checkbox">
                             <Checkbox
-                              indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
-                              checked={basket.length > 0 && selectedItems.length === basket.length}
-                              onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
+                              checked={selectedItems.includes(item.id)}
+                              onChange={() => toggleSelectItem(item.id)}
                             />
                           </TableCell>
                         )}
-                        <TableCell>Ürün</TableCell>
-                        <TableCell align="right">Fiyat</TableCell>
-                        <TableCell align="right">Adet</TableCell>
-                        <TableCell align="right">Toplam</TableCell>
+                        <TableCell component="th" scope="row">
+                          {item.name}
+                        </TableCell>
+                        <TableCell align="right">{item.price}₺</TableCell>
+                        <TableCell align="right">{item.quantity}</TableCell>
+                        <TableCell align="right">{item.price * item.quantity}₺</TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {basket.map((item) => (
-                        <TableRow
-                          key={item.id}
-                          hover
-                          role="checkbox"
-                          aria-checked={selectedItems.includes(item.id)}
-                          tabIndex={-1}
-                          selected={selectedItems.includes(item.id)}
-                        >
-                          {showCheckboxes && (
-                            <TableCell padding="checkbox">
-                              <Checkbox
-                                checked={selectedItems.includes(item.id)}
-                                onChange={() => toggleSelectItem(item.id)}
-                              />
-                            </TableCell>
-                          )}
-                          <TableCell component="th" scope="row">
-                            {item.name}
-                          </TableCell>
-                          <TableCell align="right">{item.price}₺</TableCell>
-                          <TableCell align="right">{item.quantity}</TableCell>
-                          <TableCell align="right">{item.price * item.quantity}₺</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </InfiniteScroll>
-              </TableContainer>
-              <Typography variant="h6" align="right" gutterBottom>Ara Toplam: {getTotalPrice().toFixed(2)}₺</Typography>
-              <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat: {getTotalPriceWithPromotion().toFixed(2)}₺</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
-                {paymentMethods.map((method) => (
-                  <Button
-                    key={method}
-                    variant="contained"
-                    onClick={() => handlePaymentMethod(method)}
-                    fullWidth
-                    sx={{ height: '50px' }}
-                  >
-                    {method}
-                  </Button>
-                ))}
-              </Box>
-              <Divider sx={{ my: 2 }} />
-              <TextField
-                label="Miktar"
-                variant="outlined"
-                fullWidth
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
-                {keys.map((key) => (
-                  <Button
-                    key={key}
-                    variant="outlined"
-                    // onClick={() => handleKeyPress(key)}
-                    sx={{ width: '80px', height: '60px', marginBottom: 1 }}
-                  >
-                    {key}
-                  </Button>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+                    ))}
+                  </TableBody>
+                </Table>
+              </InfiniteScroll>
+            </TableContainer>
+            <Typography variant="h6" align="right" gutterBottom>Ara Toplam: {getTotalPrice().toFixed(2)}₺</Typography>
+            <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat: {getTotalPriceWithPromotion().toFixed(2)}₺</Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <Card sx={{ height: '100%' }}>
+          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
+              {paymentMethods.map((method) => (
+                <Button
+                  key={method}
+                  variant="contained"
+                  onClick={() => handlePaymentMethod(method)}
+                  fullWidth
+                  sx={{ height: '50px' }}
+                >
+                  {method}
+                </Button>
+              ))}
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <TextField
+              label="Miktar"
+              variant="outlined"
+              fullWidth
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              sx={{ mb: 2 }}
+              onKeyDown={(e) => e.key === 'Enter' && handleEnterPress(e)}
+            />
+            <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
+              {keys.map((key) => (
+                <Button
+                  key={key}
+                  variant="outlined"
+                  onClick={() => handleKeyPress(key)}
+                  sx={{ width: '80px', height: '60px', marginBottom: 1 }}
+                >
+                  {key}
+                </Button>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
       </Grid>
     </Grid>
-          </Grid>
+      </Grid>
+    </Grid>
         </Box>
       </Box>
     </Box>
