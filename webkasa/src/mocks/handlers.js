@@ -124,36 +124,19 @@ const generateProducts = (count) => {
   console.log('genereteproduct')
   const products = [];
   for (let i = 1; i <= count; i++) {
-    const id = i; // id değerini sıralı olarak atıyoruz (1, 2, 3, ...)
+    const id = i; 
     products.push({
       id: id,
       barcode: uuidv4(),
       name: faker.commerce.productName(),
       price: parseFloat(faker.commerce.price()),
-      image: faker.image.imageUrl(),
+      image: faker.image.url(),
       category: getRandomCategory(),
     });
   }
   return products;
 };
-// const generateProducts = (count) => {
-//   const products = [];
-//   for (let i = 1; i <= count; i++) {
-//     const id = i; // id değerini sıralı olarak atıyoruz (1, 2, 3, ...)
-//     const randomChars = Math.random().toString(36).substring(2, 7); // Rastgele karakterler
 
-//     // const barcode = `59${i.toString().padStart(11, '0')}${randomChars}`; // Kod formatı: 5901234567304 gibi
-//     products.push({
-//       id: id,
-//       barcode:uuidv4(),
-//       name: faker.commerce.productName(),
-//       price: parseFloat(faker.commerce.price()),
-//       image: faker.image.imageUrl(),
-//       category: getRandomCategory(),
-//     });
-//   }
-//   return products;
-// };
 
 const allProducts = generateProducts(1000);
 export const handlers = [ 
@@ -193,7 +176,7 @@ export const handlers = [
      
       const users = [
         { kullaniciKodu: '123', sifre: 'hatice' },
-        { kullaniciKodu: '456', sifre: 'barancan' }, // Kullanıcı kodlarını string yapın
+        { kullaniciKodu: '456', sifre: 'barancan' }, 
       ];
 
       const isValidUser = users.some(
@@ -211,8 +194,22 @@ export const handlers = [
       
     }),
    
-    http.get('/products', () => {
-      return HttpResponse.json(Array.from(allProducts.values()));
+    http.get('/products', ({request}) => {
+      const url = new URL(request.url)
+      const page = url.searchParams.get('page')
+      const category = url.searchParams.get('category')
+      const pageSize = 10
+
+      const filteredProducts = category === 'All'
+        ? allProducts
+        : allProducts.filter((product) => product.category === category);
+
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = page * pageSize;
+      
+      const products = filteredProducts.slice(startIndex, endIndex);
+       
+      return HttpResponse.json(Array.from(products.values()));
     }),
 
 ]

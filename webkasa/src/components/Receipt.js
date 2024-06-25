@@ -1,51 +1,33 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { Box, Paper, Typography, CircularProgress, Button } from '@mui/material';
+import { Typography, CircularProgress } from '@mui/material';
 import ProductContext from '../context/Products';
 import '../Receipt.css';
 
 const Receipt = () => {
-    const { basket, partialPayments, setCompletedTransaction, setBasket, setPartialPayments } = useContext(ProductContext);
+    const { completedTransactionDetails ,getTotalPriceWithPromotion,calculateTotalPaid} = useContext(ProductContext);
     const receiptRef = useRef();
     const [isPrinting, setIsPrinting] = useState(false);
-    const [receiptData, setReceiptData] = useState({ basket: [], partialPayments: {} });
-
-    const calculateTotalPaid = (payments) => {
-        return Object.values(payments).reduce((total, amount) => total + amount, 0);
-    };
-
-    const getTotalPriceWithPromotion = (items) => {
-        return items.reduce((total, item) => {
-            const discountQuantity = Math.floor(item.quantity / 3);
-            const normalQuantity = item.quantity - discountQuantity;
-            return total + (normalQuantity * item.price);
-        }, 0);
-    };
 
     const handlePrint = async () => {
         setIsPrinting(true);
-        setCompletedTransaction(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2000)); 
             window.print();
         } finally {
             setIsPrinting(false);
         }
     };
+    const calculateRemainingAmount = () => {
+        const totalPrice = getTotalPriceWithPromotion();
+        const totalPaid = calculateTotalPaid();
+        return totalPrice - totalPaid;
+      };
+    if (!completedTransactionDetails) {
+        return <Typography variant="h6">No transaction details available.</Typography>;
+    }
 
-    useEffect(() => {
-        // Store a copy of the basket and partial payments before clearing them
-        setReceiptData({ basket, partialPayments });
-
-        // Clear the basket and payments
-        setBasket([]);
-        setPartialPayments({});
-    }, [basket, partialPayments, setBasket, setPartialPayments]);
-
-    const totalPrice = getTotalPriceWithPromotion(receiptData.basket);
-    const totalPaid = calculateTotalPaid(receiptData.partialPayments);
-    const remainingAmount = Math.max(totalPrice - totalPaid, 0);
-    const changeAmount = Math.max(totalPaid - totalPrice, 0);
+    const { basket, totalPaid, totalPriceWithPromotion, changeAmount } = completedTransactionDetails;
 
     return (
         <div>
@@ -56,7 +38,7 @@ const Receipt = () => {
                 </div>
                 <div className="fis-cizgi"></div>
                 <div className="urunler">
-                    {receiptData.basket.map((item) => {
+                    {basket.map((item) => {
                         const discountQuantity = Math.floor(item.quantity / 3);
                         const normalQuantity = item.quantity - discountQuantity;
                         const totalItemPrice = normalQuantity * item.price;
@@ -73,21 +55,21 @@ const Receipt = () => {
                 <div className="fis-cizgi"></div>
                 <div className="fis-footer">
                     <Typography variant="h6" align="right" gutterBottom>
-                        Toplam Tutar: {totalPrice.toFixed(2)} TL
+                        Toplam Tutar: {totalPriceWithPromotion.toFixed(2)} TL
                     </Typography>
                     <Typography variant="h6" align="right" gutterBottom>
                         Ödenen Tutar: {totalPaid.toFixed(2)} TL
                     </Typography>
-                    {remainingAmount > 0 && (
-                        <Typography variant="h6" align="right" gutterBottom>
-                            Kalan Tutar: {remainingAmount.toFixed(2)} TL
-                        </Typography>
-                    )}
                     {changeAmount > 0 && (
                         <Typography variant="h6" align="right" gutterBottom>
                             Para Üstü: {changeAmount.toFixed(2)} TL
                         </Typography>
                     )}
+                     {changeAmount === null && (
+          <Typography variant="h6" align="right" gutterBottom>
+            Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
+          </Typography>
+        )}
                 </div>
                 {isPrinting && (
                     <div className="overlay">

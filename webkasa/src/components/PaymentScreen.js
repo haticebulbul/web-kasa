@@ -115,7 +115,7 @@ const PaymentScreen = () => {
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme();
   const navigate = useNavigate();
-  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket,           
+  const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket, completedTransactionDetails, setCompletedTransactionDetails,          
 
     selectedItems, getTotalPriceWithPromotion, quantityInputMode, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments
   } = useContext(ProductContext);
@@ -145,57 +145,59 @@ const PaymentScreen = () => {
   }, [partialPayments]);
 
   const handleKeyPress = (key) => {
-    if (transactionCompleted) return; // Prevent key press actions if the transaction is complete
-  
-    const totalPriceWithPromotion = getTotalPriceWithPromotion();
-    const totalPaid = calculateTotalPaid();
+    if (transactionCompleted) return;
+
+    const totalPriceWithPromotion = getTotalPriceWithPromotion(basket);
+    const totalPaid = calculateTotalPaid(partialPayments);
     const remainingAmount = totalPriceWithPromotion - totalPaid;
-  
+
     if (key === 'sil') {
-      setPaymentAmount(paymentAmount.slice(0, -1));
+        setPaymentAmount(paymentAmount.slice(0, -1));
     } else if (key === 'onayla') {
-      if (selectedMethod) {
-        const amount = parseFloat(paymentAmount);
-        if (!isNaN(amount) && amount > 0) {
-          if (selectedMethod === 'Kredi' && amount > remainingAmount) {
-            alert('Girilen miktar toplam fiyattan fazla olamaz.');
-          } else if (selectedMethod === 'Nakit') {
-            if (amount >= remainingAmount) {
-              setPartialPayments(prev => ({
-                ...prev,
-                [selectedMethod]: (prev[selectedMethod] || 0) + amount,
-              }));
-              setPaymentAmount('');
-              setChangeAmount(amount - remainingAmount);
-            } else {
-              setPartialPayments(prev => ({
-                ...prev,
-                [selectedMethod]: (prev[selectedMethod] || 0) + amount,
-              }));
-              setPaymentAmount('');
-              setChangeAmount(null);
+        if (selectedMethod) {
+            const amount = parseFloat(paymentAmount);
+            if (!isNaN(amount) && amount > 0) {
+                if (selectedMethod === 'Kredi' && amount > remainingAmount) {
+                    alert('Girilen miktar toplam fiyattan fazla olamaz.');
+                } else if (selectedMethod === 'Nakit') {
+                    if (amount >= remainingAmount) {
+                        setPartialPayments(prev => ({
+                            ...prev,
+                            [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+                        }));
+                        setPaymentAmount('');
+                        setChangeAmount(amount - remainingAmount);
+                        handlePaymentComplete();
+                    } else {
+                        setPartialPayments(prev => ({
+                            ...prev,
+                            [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+                        }));
+                        setPaymentAmount('');
+                        setChangeAmount(null);
+                    }
+                } else {
+                    setPartialPayments(prev => ({
+                        ...prev,
+                        [selectedMethod]: (prev[selectedMethod] || 0) + amount,
+                    }));
+                    setPaymentAmount('');
+                    if (selectedMethod === 'Kredi') {
+                        handlePaymentComplete();
+                    }
+                }
             }
-          } else {
-            setPartialPayments(prev => ({
-              ...prev,
-              [selectedMethod]: (prev[selectedMethod] || 0) + amount,
-            }));
-            setPaymentAmount('');
-            if (selectedMethod === 'Kredi') {
-              clearBasket(); // Kredi kartıyla ödeme yapıldığında sepeti temizle
-            }
-          }
         }
-      }
     } else {
-      const newPaymentAmount = parseFloat(paymentAmount + key);
-      if (selectedMethod === 'Kredi' && newPaymentAmount > remainingAmount) {
-        alert('Girilen miktar toplam fiyattan fazla olamaz.');
-      } else {
-        setPaymentAmount(prev => prev + key);
-      }
+        const newPaymentAmount = parseFloat(paymentAmount + key);
+        if (selectedMethod === 'Kredi' && newPaymentAmount > remainingAmount) {
+            alert('Girilen miktar toplam fiyattan fazla olamaz.');
+        } else {
+            setPaymentAmount(prev => prev + key);
+        }
     }
-  };
+};
+
   
 
   const handlePaymentMethod = (method) => {
@@ -222,23 +224,29 @@ const PaymentScreen = () => {
         setOpen(true);
     }
 };
-const handlePaymentComplete = () => {
-  const totalPriceWithPromotion = getTotalPriceWithPromotion();
-  const totalPaid = calculateTotalPaid();
-
-  if (totalPaid >= totalPriceWithPromotion) {
-    setCompletedTransaction(true);
-    clearBasket();
-    setPartialPayments({});
-    setChangeAmount(totalPaid - totalPriceWithPromotion);
-    disableKeys(); // Function to disable keys
-  } else {
-    alert('Lütfen toplam ücreti ödeyin.');
-  }
-};
 const disableKeys = () => {
   setKeysDisabled(true);
 };
+const handlePaymentComplete = () => {
+  const totalPriceWithPromotion = getTotalPriceWithPromotion(basket);
+  const totalPaid = calculateTotalPaid(partialPayments);
+
+  if (totalPaid >= totalPriceWithPromotion) {
+      setCompletedTransactionDetails({
+          basket: [...basket],
+          totalPaid: totalPaid,
+          totalPriceWithPromotion: totalPriceWithPromotion,
+          changeAmount: totalPaid - totalPriceWithPromotion,
+      });
+      clearBasket();
+      setPartialPayments({});
+      navigate('/receipt');
+  }
+  //  else {
+  //     alert('Lütfen toplam ücreti ödeyin.');
+  // }
+};
+
 
 const [keysDisabled, setKeysDisabled] = useState(false);
 const handleRowCancel = () => {

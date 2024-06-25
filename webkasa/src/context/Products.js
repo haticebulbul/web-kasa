@@ -19,19 +19,19 @@ export const ProductProvider = ({ children }) => {
     const [quantity, setQuantity] = useState('');
     const [currentProduct, setCurrentProduct] = useState(null);
     const [partialPayments, setPartialPayments] = useState({});
-    const [completedTransaction, setCompletedTransaction] = useState(null); // Ödeme bilgilerini saklayacak state
-    const [promotionActive, setPromotionActive] = useState(false); // Kampanyanın aktif olup olmadığını belirten state
+    const [completedTransaction, setCompletedTransaction] = useState(null);
+    const [promotionActive, setPromotionActive] = useState(false); 
+    const [completedTransactionDetails, setCompletedTransactionDetails] = useState(null); 
 
    
     
     const categories = ['All', 'Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
 
-    const fetchProducts = useCallback(async (pageNum = 1, resetData = false) => {
+    const fetchProducts = useCallback(async (pageNum = 1, resetData = false, activeCategory = "All") => {
         try {
-            console.log("fetchproducts " + pageNum )
             setIsLoading(true);
             setIsError(false);
-            const resPro = await fetch(`/products?page=${pageNum}`);
+            const resPro = await fetch(`/products?page=${pageNum}&category=${activeCategory}`);
             const res = await resPro.json();
             if (Array.isArray(res)) {
                 const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
@@ -63,9 +63,9 @@ export const ProductProvider = ({ children }) => {
     };
 
     const handleBarcodeScan = (barcode) => {
-        const product = data.find(item => item.barkod === barcode.toString());
+        const product = data.find(item => item.barcode === barcode.toString());
         if (product) {
-            addToBasket(product); // Add the product to the basket if found
+            addToBasket(product); 
         } else {
             alert('Product not found');
         }
@@ -77,13 +77,13 @@ export const ProductProvider = ({ children }) => {
 
     const handleScan = () => {
         handleBarcodeScan(barcode);
-        setBarcode(''); // Clear the input after scanning
+        setBarcode(''); 
     };
 
     const handleScroll = useCallback(() => {
         if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading || !hasMore) return;
-        fetchProducts(page + 1);
-    }, [fetchProducts, isLoading, hasMore, page]);
+        fetchProducts(page + 1, false, activeCategory);
+    }, [fetchProducts, isLoading, hasMore, page, activeCategory]);
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
@@ -91,38 +91,21 @@ export const ProductProvider = ({ children }) => {
     }, [handleScroll]);
 
     useEffect(() => {
-        fetchProducts(1, true);
+        fetchProducts(1, true, "All");
     }, [fetchProducts]);
 
     useEffect(() => {
-        fetchProducts(1, true);
+        fetchProducts(1, true, activeCategory);
     }, [activeCategory, fetchProducts]);
 
-    const filteredProducts = activeCategory === 'All'
-        ? data
-        : data.filter((product) => product.category === activeCategory);
+  
+        const filteredProducts = data;
 
     const getTotalPrice = () => {
         return basket.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
-    // const getTotalPriceWithPromotion = () => {
-    //     return basket.reduce((total, item) => {
-    //         if (promotion === '3_for_2') {
-    //             const discountQuantity = Math.floor(item.quantity / 3);
-    //             const normalQuantity = item.quantity - discountQuantity;
-    //             return total + (normalQuantity * item.price);
-    //         }
-    //         return total + (item.quantity * item.price);
-    //     }, 0);
-    // };
-    // const getTotalPriceWithPromotion = () => {
-    //     return basket.reduce((total, item) => {
-    //         const discountQuantity = Math.floor(item.quantity / 3);
-    //         const normalQuantity = item.quantity - discountQuantity;
-    //         return total + (normalQuantity * item.price);
-    //     }, 0);
-    // };
+
     const getTotalPriceWithPromotion = () => {
         if (!promotionActive) {
             return getTotalPrice();
@@ -154,7 +137,7 @@ export const ProductProvider = ({ children }) => {
     
       const applyPromotion = (promo) => {
         setPromotion(promo);
-        setPromotionActive(!promotionActive); // Kampanya aktifliğini değiştirir
+        setPromotionActive(!promotionActive);
     };
     
       const adjustProductQuantity = (productId, quantity) => {
@@ -184,7 +167,7 @@ export const ProductProvider = ({ children }) => {
             activeCategory, categories, filteredProducts, setActiveCategory, addToBasket, basket,currentProduct, setCurrentProduct,
             handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,setBasket,
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
-            applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,
+            applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,completedTransactionDetails, setCompletedTransactionDetails,
             partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,    clearBasket,     setCompletedTransaction,
 
         }}>
