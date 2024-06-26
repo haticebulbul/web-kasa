@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { faker } from '@faker-js/faker'; // Sahte (fake) veri oluşturmak için kullanılır.
-import { v4 as uuidv4 } from 'uuid'; //Benzersiz UUID (evrensel benzersiz tanımlayıcı) oluşturmak için kullanılır. Bu, her ürün için benzersiz bir barkod değeri oluşturmak için kullanılır.
+import { faker } from '@faker-js/faker'; 
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -170,7 +170,6 @@ export const handlers = [
       }),
      
     http.post('/login', async ({ request }) => {
-      // debugger
       const req = await request.json()
       console.log(req.kullaniciKodu)
      
@@ -211,5 +210,16 @@ export const handlers = [
        
       return HttpResponse.json(Array.from(products.values()));
     }),
+
+
+
+    http.post('/send-email', async ( { request }) => {
+      const req = await request.json()
+       
+        
+            return  HttpResponse.json({ message: 'E-posta başarıyla gönderildi.' }, { status: 200 })
+      
+    }),
+    
 
 ]

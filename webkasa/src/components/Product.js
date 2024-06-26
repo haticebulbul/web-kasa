@@ -297,7 +297,7 @@ export const Product = () => {
             />
             <CardContent>
               <Typography gutterBottom variant="h6" component="div">
-               {product.id}  {product.name}
+                 {product.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {product.category}

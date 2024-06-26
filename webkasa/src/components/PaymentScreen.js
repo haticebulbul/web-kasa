@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect,useRef } from 'react';
 import {
   AppBar, Toolbar, IconButton, Typography, Box, Card, CardContent, Divider, List, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Grid, Button,
@@ -23,6 +23,7 @@ import ProductContext from '../context/Products';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Keyboard from "react-simple-keyboard";
 import 'react-simple-keyboard/build/css/index.css';
+import Receipt from './Receipt';
 
 const drawerWidth = 240;
 
@@ -117,7 +118,7 @@ const PaymentScreen = () => {
   const navigate = useNavigate();
   const { basket, hasMore, fetchProducts, getTotalPrice, toggleSelectItem, setPaymentMethod, finishTransaction, setQuantity, setBasket, completedTransactionDetails, setCompletedTransactionDetails,          
 
-    selectedItems, getTotalPriceWithPromotion, quantityInputMode, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments
+    selectedItems, getTotalPriceWithPromotion, open, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments,handleConfirmEmail,sendEmail,setOpen,setEmail,setEmailSent,setKeyboardVisible,keyboardVisible,handleClose,email
   } = useContext(ProductContext);
   const [page, setPage] = useState(1);
 
@@ -222,29 +223,11 @@ const PaymentScreen = () => {
         }
     } else if (method === 'E-Fatura') {
         setOpen(true);
+        
     }
 };
 const disableKeys = () => {
   setKeysDisabled(true);
-};
-const handlePaymentComplete = () => {
-  const totalPriceWithPromotion = getTotalPriceWithPromotion(basket);
-  const totalPaid = calculateTotalPaid(partialPayments);
-
-  if (totalPaid >= totalPriceWithPromotion) {
-      setCompletedTransactionDetails({
-          basket: [...basket],
-          totalPaid: totalPaid,
-          totalPriceWithPromotion: totalPriceWithPromotion,
-          changeAmount: totalPaid - totalPriceWithPromotion,
-      });
-      clearBasket();
-      setPartialPayments({});
-      navigate('/receipt');
-  }
-  //  else {
-  //     alert('Lütfen toplam ücreti ödeyin.');
-  // }
 };
 
 
@@ -252,7 +235,7 @@ const [keysDisabled, setKeysDisabled] = useState(false);
 const handleRowCancel = () => {
   if (showCheckboxes && selectedItems.length > 0) {
     removeSelectedItems();
-    setShowCheckboxes(false); // Seçim modunu devre dışı bırak
+    setShowCheckboxes(false); 
   } else {
     alert('Lütfen iptal etmek için bir satır seçin.');
   }
@@ -267,28 +250,17 @@ const calculateRemainingAmount = () => {
   return totalPrice - totalPaid;
 };
 
-  const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-    setKeyboardVisible(false);
-  };
+  
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
+    
   };
+ 
 
-  const handleConfirmEmail = () => {
-    console.log('Entered email:', email);
-    handleClose();
+  const handleEmailSent = () => {
+    setEmailSent(true);
   };
-
-  const toggleKeyboard = () => {
-    setKeyboardVisible(!keyboardVisible);
-  };
-
   const onKeyPress = (button) => {
     if (button === '{enter}') {
       handleConfirmEmail();
@@ -298,6 +270,11 @@ const calculateRemainingAmount = () => {
       setEmail(prevEmail => prevEmail + button);
     }
   };
+ const toggleKeyboard = () => {
+    setKeyboardVisible(!keyboardVisible);
+  };
+
+ 
   const handleDocumentFinish = () => {
     const remainingAmount = calculateRemainingAmount();
     
@@ -309,6 +286,31 @@ const calculateRemainingAmount = () => {
       alert('Lütfen ödemenizi tamamlayın.');
     }
   };
+ 
+
+ 
+    const receiptRef = useRef();
+
+    
+
+
+    const handlePaymentComplete = () => {
+      const totalPriceWithPromotion = getTotalPriceWithPromotion(basket);
+      const totalPaid = calculateTotalPaid(partialPayments);
+    
+      if (totalPaid >= totalPriceWithPromotion) {
+        setCompletedTransactionDetails({
+          basket: [...basket],
+          totalPaid: totalPaid,
+          totalPriceWithPromotion: totalPriceWithPromotion,
+          changeAmount: totalPaid - totalPriceWithPromotion,
+        });
+        clearBasket();
+        setPartialPayments({});
+        navigate('/receipt');
+      }
+    };
+    
 
   return (
     <MuiThemeProvider theme={currentTheme}>
@@ -456,113 +458,98 @@ const calculateRemainingAmount = () => {
       </CardContent>
     </Card>
   </Grid>
-  <Grid item xs={12} sm={6} md={4} sx={{ height: '100%' }}>
-    <Card sx={{ height: '100%' }}>
-      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
-          {paymentMethods.map((method) => (
-            <Button
-              key={method}
-              variant="contained"
-              color={selectedMethod === method ? 'primary' : 'secondary'}
-              onClick={() => handlePaymentMethod(method)}
-              fullWidth
-              sx={{ height: '50px' }}
-            >
-              {method}
-            </Button>
-          ))}
-        </Box>
-        <Divider sx={{ my: 2 }} />
-        <TextField
-          fullWidth
-          value={paymentAmount}
-          onChange={(e) => setPaymentAmount(e.target.value)}
-          sx={{ mb: 2 }}
-          placeholder="Enter amount"
-          disabled={keysDisabled}
-        />
-        <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
-          {keys.map((key) => (
-            <Button
-              key={key}
-              variant="outlined"
-              onClick={() => handleKeyPress(key)}
-              sx={{ width: '80px', height: '60px', marginBottom: 1 }}
-              disabled={keysDisabled}
-            >
-              {key}
-            </Button>
-          ))}
-        </Box>
-        {changeAmount !== null && (
-          <Typography variant="h6" align="right" gutterBottom>
-            Para Üstü: {changeAmount.toFixed(2)} TL
-          </Typography>
-        )}
-        {changeAmount === null && (
-          <Typography variant="h6" align="right" gutterBottom>
-            Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
-          </Typography>
-        )}
+ <Grid item xs={12} sm={6} md={4} sx={{ height: '100%' }}>
+  <Card sx={{ height: '100%' }}>
+    <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
+        {paymentMethods.map((method) => (
+          <Button
+            key={method}
+            variant="contained"
+            color={selectedMethod === method ? 'primary' : 'secondary'}
+            onClick={() => handlePaymentMethod(method)}
+            fullWidth
+            sx={{ height: '50px' }}
+          >
+            {method}
+          </Button>
+        ))}
+      </Box>
+      <Divider sx={{ my: 2 }} />
+      <TextField
+        fullWidth
+        value={paymentAmount}
+        onChange={(e) => setPaymentAmount(e.target.value)}
+        sx={{ mb: 2 }}
+        placeholder="Enter amount"
+        disabled={keysDisabled}
+      />
+      <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
+        {keys.map((key) => (
+          <Button
+            key={key}
+            variant="outlined"
+            onClick={() => handleKeyPress(key)}
+            sx={{ width: '80px', height: '60px', marginBottom: 1 }}
+            disabled={keysDisabled}
+          >
+            {key}
+          </Button>
+        ))}
+      </Box>
+      {changeAmount !== null && (
+        <Typography variant="h6" align="right" gutterBottom>
+          Para Üstü: {changeAmount.toFixed(2)} TL
+        </Typography>
+      )}
+      {changeAmount === null && (
+        <Typography variant="h6" align="right" gutterBottom>
+          Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
+        </Typography>
+      )}
+      <Box mt="auto">
         <Button
           variant="contained"
           color="primary"
           onClick={handlePaymentComplete}
           disabled={!isCheckoutEnabled || transactionCompleted}
+          fullWidth
         >
           Ödemeyi Tamamla
         </Button>
-      </CardContent>
-    </Card>
-  </Grid>
+      </Box>
+    </CardContent>
+  </Card>
 </Grid>
 
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Enter Email Address</DialogTitle>
+</Grid>
+
+             <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Email Adresinizi Girin</DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                To send an electronic invoice, please enter your email address here.
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="email"
-                label="Email Address"
-                type="email"
-                fullWidth
-                value={email}
-                onChange={handleEmailChange}
-              />
-              {keyboardVisible && (
-                <Keyboard
-                  onKeyPress={onKeyPress}
-                  layout={{
-                    default: [
-                      'q w e r t y u i o p {bksp}',
-                      'a s d f g h j k l {enter}',
-                      'z x c v b n m @ .',
-                    ],
-                  }}
-                  display={{
-                    '{bksp}': '←',
-                    '{enter}': 'Enter',
-                  }}
+                <DialogContentText>
+                    Elektronik faturayı göndermek için lütfen email adresinizi girin.
+                </DialogContentText>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="email"
+                    label="Email Address"
+                    type="email"
+                    fullWidth
+                    value={email}
+                    onChange={handleEmailChange}
                 />
-              )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={toggleKeyboard} color="primary">
-                {keyboardVisible ? 'Hide Keyboard' : 'Show Keyboard'}
-              </Button>
-              <Button onClick={handleClose} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={handleConfirmEmail} color="primary">
-                Confirm
-              </Button>
+                <Button onClick={handleClose} color="secondary">
+                    İptal
+                </Button>
+                <Button onClick={handleConfirmEmail} color="primary">
+                    Gönder
+                </Button>
             </DialogActions>
-          </Dialog>
+        </Dialog>
         </Box>
       </Box>
     </MuiThemeProvider>

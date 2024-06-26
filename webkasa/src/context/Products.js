@@ -21,7 +21,12 @@ export const ProductProvider = ({ children }) => {
     const [partialPayments, setPartialPayments] = useState({});
     const [completedTransaction, setCompletedTransaction] = useState(null);
     const [promotionActive, setPromotionActive] = useState(false); 
-    const [completedTransactionDetails, setCompletedTransactionDetails] = useState(null); 
+    const [completedTransactionDetails, setCompletedTransactionDetails] = useState({
+        basket: [],
+        totalPaid: 0,
+        totalPriceWithPromotion: 0,
+        changeAmount: 0,
+    });
 
    
     
@@ -159,8 +164,50 @@ export const ProductProvider = ({ children }) => {
         setQuantity('');
         setQuantityInputMode(false);
       };
+      const [email, setEmail] = useState('');
+      const [emailSent, setEmailSent] = useState(false);
+      const [keyboardVisible, setKeyboardVisible] = useState(false);
+      const [open, setOpen] = useState(false);
+      const handleClose = () => {
+        setOpen(false);
+        setKeyboardVisible(false);
+      };
     
+      const sendEmail = async (emailAddress, completedTransactionDetails) => {
+        try {
+           
+            const response = await fetch('/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: emailAddress,
+                    receipt: {
+                        basket: completedTransactionDetails.basket,
+                        totalPaid: completedTransactionDetails.totalPaid,
+                        totalPriceWithPromotion: completedTransactionDetails.totalPriceWithPromotion,
+                        changeAmount: completedTransactionDetails.changeAmount,
+                    },
+                }),
+            });
 
+            if (response.ok) {
+                console.log('E-posta başarıyla gönderildi.');
+                return true; 
+            } else {
+                console.error('E-posta gönderilirken bir hata oluştu.');
+                return false;
+            }
+        } catch (error) {
+            console.error('E-posta gönderilirken bir hata oluştu:', error);
+            return false; 
+        }
+    };
+        const handleConfirmEmail = async () => {
+           sendEmail(email, completedTransactionDetails)
+            handleClose();
+        };
     return (
         <ProductContext.Provider value={{
             isLoading, isError,setIsError, data, page, setPage,hasMore, fetchProducts, handleScroll, setQuantity,
@@ -169,6 +216,7 @@ export const ProductProvider = ({ children }) => {
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
             applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,completedTransactionDetails, setCompletedTransactionDetails,
             partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,    clearBasket,     setCompletedTransaction,
+            handleConfirmEmail,sendEmail,setOpen,setEmail,setEmailSent,setKeyboardVisible,keyboardVisible,handleClose,email,open
 
         }}>
             {children}
