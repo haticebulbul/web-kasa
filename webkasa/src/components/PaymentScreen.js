@@ -330,11 +330,16 @@ const calculateRemainingAmount = () => {
               <MenuIcon />
             </IconButton>
             <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1 }}
-            >
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              flexGrow: 1,
+              textAlign: 'center',
+              fontSize: '1.25rem',
+              fontWeight: 'bold',
+            }}
+          >
               Payment Screen
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -384,6 +389,12 @@ const calculateRemainingAmount = () => {
               </ListItemButton>
             </ListItem>
           </List>
+           <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
+              <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
+                <ListItemIcon> <LogoutIcon /></ListItemIcon>
+                <ListItemText primary="Çıkış Yap" />
+              </ListItemButton>
+            </ListItem>
         </StyledDrawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, overflow: 'hidden' }}>
           <DrawerHeader />

@@ -223,28 +223,13 @@ const Settings = () => {
                   theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
               }}
             >
-              <Grid container spacing={2}>
-                <Grid item>
-                  <ButtonBase sx={{ width: 128, height: 128 }}>
-                    <LanguageIcon sx={{ fontSize: 64 }} />
-                  </ButtonBase>
-                </Grid>
-                <Grid item xs={12} sm container>
-                  <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                      <Typography gutterBottom variant="subtitle1" component="div">
-                        {/* {t('settings.themeSelection')} Use translation key */}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
+          
             </Paper>
             <Menu open={dropDown === "show"} onClose={() => setDropDown("")}>
             </Menu>
           </Container>
           <Box sx={{ my: 2 }} />
-          <Container maxWidth="sm">
+          <Container maxWidth="sm" alignItems="center"  justifyContent="center" >
           <Paper elevation={3} sx={{ p: 2, margin: 'auto', maxWidth: 300 }}>
               <Grid container alignItems="center" justifyContent="center">
                 <Tooltip title={theme === 'light' ? "Koyu Temaya Geç" : "Açık Temaya Geç"}>
