@@ -209,8 +209,7 @@ export const Login = () => {
                     layoutName={layoutName}
                     onChange={(input) => setInput(input)}
                     onKeyPress={onInputKeyPress}
-                    {...getKeyboardLayout()}
-                    theme={theme === 'dark' ? 'hg-theme-dark' : 'hg-theme-default'}
+                    {...getKeyboardLayout()}      
                   />
                 </DialogContent>
               </Dialog>

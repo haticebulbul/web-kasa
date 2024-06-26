@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
-// const allProducts = new Map(
+
 //   [
 //     [1, { "id": 1, "kod": "M001", "name": "Elma", "price": 3, "image": "https://www.doktorsaliheken.com/2021/03/elma.jpg", "category": "Meyve" }],
 //     [2, { "id": 2,"kod": "M002", "name": "Armut", "price": 4, "image": "https://www.eskitadinda.com/img/armut_1964_3075_2.png", "category": "Meyve" }],

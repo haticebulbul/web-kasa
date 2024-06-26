@@ -315,7 +315,7 @@ export const AnaEkran = () => {
       }
     };
   
-    fetchStoreStatus();  // İlk kontrolü yap
+    fetchStoreStatus();  
     const intervalId = setInterval(fetchStoreStatus, 10000);
   
     return () => clearInterval(intervalId);
@@ -324,8 +324,8 @@ export const AnaEkran = () => {
 
   const MainContent = styled(Box)(({ theme }) => ({
     flexGrow: 1, 
-    padding: theme.spacing(3), // Adjust padding as needed
-    marginTop: '64px',       // This is crucial to start below the AppBar
+    padding: theme.spacing(3),
+    marginTop: '64px',       
   }));
   const tarih = new Date();
 
@@ -366,12 +366,6 @@ export const AnaEkran = () => {
                   <Typography variant="body2" color="text.secondary">
                     Kullanıcı Kodu: {userData}
                   </Typography>
-                  {/* <Typography variant="body2" color="text.secondary">
-                    Durum: {storeStatus}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {tarih.toLocaleDateString()}
-                  </Typography> */}
                 </CardContent>
               </Card>
             </Box>
