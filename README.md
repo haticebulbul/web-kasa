@@ -31,8 +31,7 @@ Bu proje, bir web tabanlı kasa uygulamasıdır. Uygulama, çeşitli satış ve 
 
 
 
-
-###Kütüphaneler
+## Kütüphaneler
 
 * [![React][React.js]][React-url] - JavaScript kütüphaneleri için kullanılan bir kütüphane.
 * [![CSS][CSS.js]][CSS-url] - Web sayfalarınızın stilini belirlemek için kullanılan dillerden biri.
