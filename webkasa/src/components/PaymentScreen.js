@@ -25,6 +25,7 @@ import Keyboard from "react-simple-keyboard";
 import 'react-simple-keyboard/build/css/index.css';
 import Receipt from './Receipt';
 
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -121,7 +122,6 @@ const PaymentScreen = () => {
     selectedItems, getTotalPriceWithPromotion, open, quantity, clearBasket, removeSelectedItems, partialPayments, setPartialPayments,handleConfirmEmail,sendEmail,setOpen,setEmail,setEmailSent,setKeyboardVisible,keyboardVisible,handleClose,email
   } = useContext(ProductContext);
   const [page, setPage] = useState(1);
-
   const fetchMoreData = () => {
     fetchProducts(page + 1);
     setPage(page + 1);
@@ -340,7 +340,7 @@ const calculateRemainingAmount = () => {
               fontWeight: 'bold',
             }}
           >
-              Payment Screen
+              Ödeme Ekranı
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
@@ -403,7 +403,7 @@ const calculateRemainingAmount = () => {
     <Card sx={{ height: '100%' }}>
       <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="h6" gutterBottom>
-          Products
+          Sepet
         </Typography>
         <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
           <InfiniteScroll

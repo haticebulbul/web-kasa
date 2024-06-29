@@ -25,40 +25,7 @@ const Receipt = React.forwardRef((props, ref) => {
         }
     };
 
-    // const handlePrint = async () => {
-    //     setIsPrinting(true);
-    
-    //     try {
-    //       // E-posta gönderme işlemi
-    //       const response = await fetch('/send-email', {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           email: 'receiver@example.com', // E-posta alıcısı
-    //           receipt: {
-    //             // Gönderilecek içerik
-    //             basket: completedTransactionDetails.basket,
-    //             totalPaid: completedTransactionDetails.totalPaid,
-    //             totalPriceWithPromotion: completedTransactionDetails.totalPriceWithPromotion,
-    //             changeAmount: completedTransactionDetails.changeAmount,
-    //           },
-    //         }),
-    //       });
-    
-    //       if (response.ok) {
-    //         console.log('E-posta başarıyla gönderildi.');
-    //         // E-posta başarıyla gönderildiğinde yapılacak işlemler buraya gelebilir
-    //       } else {
-    //         console.error('E-posta gönderilirken bir hata oluştu.');
-    //       }
-    //     } catch (error) {
-    //       console.error('E-posta gönderilirken bir hata oluştu:', error);
-    //     } finally {
-    //       setIsPrinting(false);
-    //     }
-    //   };
+ 
     
 
     const calculateRemainingAmount = () => {
@@ -68,7 +35,7 @@ const Receipt = React.forwardRef((props, ref) => {
     };
 
     if (!completedTransactionDetails) {
-        return <Typography variant="h6">No transaction details available.</Typography>;
+        return <Typography variant="h6">İşlem detayı bulunamadı.</Typography>;
     }
 
     const { basket, totalPaid, totalPriceWithPromotion, changeAmount } = completedTransactionDetails;
@@ -77,7 +44,7 @@ const Receipt = React.forwardRef((props, ref) => {
         <div>
             <div className="fis-container" ref={ref}>
                 <div className="fis-header">
-                    <p className="market-adi">Market Adı</p>
+                    <p className="market-adi">32 Bit</p>
                     <p className="tarih">Tarih: {new Date().toLocaleString()}</p>
                 </div>
                 <div className="fis-cizgi"></div>

@@ -9,6 +9,9 @@ export const ViewProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [version, setVersion] = useState('');
   const [userData, setUserData] = useState(null);
+  const [durumData,setDurumData] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false); 
+
   const navigate = useNavigate();
   const handleDrawerOpen = () => {
     setIsOpen(true);
@@ -37,6 +40,28 @@ export const ViewProvider = ({ children }) => {
     navigate('/');
   };
 
+  const fetchDurum = async()=>{
+    try {
+      const durum = await fetch('/store-status');
+      const durumData = await durum.json();
+      setDurumData(durumData.message);
+
+    } catch (error) {
+      console.error('Error fetching store status:', error);
+  }
+  }
+
+  const handleControl = ()=>{
+    if(durumData === 'Çevrim içi'){
+      return true
+    }else{
+      setDialogOpen(true); 
+      return false;
+    }
+  }
+    const handleCloseDialog = () => {
+    setDialogOpen(false); 
+  };
   return (
     <ViewContext.Provider
       value={{
@@ -48,6 +73,11 @@ export const ViewProvider = ({ children }) => {
         fetchVersionFromMockService,
         fetchUserData,
         handleLogout,
+       fetchDurum,
+        durumData,
+        handleControl,
+        dialogOpen,
+        handleCloseDialog
       }}
     >
       {children}

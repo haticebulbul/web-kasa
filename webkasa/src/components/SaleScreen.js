@@ -564,7 +564,7 @@ export const SaleScreen = () => {
         <Card sx={{ height: '100%' }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="h6" gutterBottom>
-              Products
+              Sepet
             </Typography>
             <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
               <InfiniteScroll

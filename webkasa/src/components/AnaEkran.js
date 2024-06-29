@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { AppBar, List, Drawer, Toolbar, IconButton, Grid,Typography,ButtonBase,
-   Stack, Button, Menu, MenuItem, Card, CardContent, CardActionArea, Box, Divider } from '@mui/material'
+import { AppBar, List, Drawer, Toolbar, IconButton, Grid,Typography,ButtonBase,Stack, Button, Menu, MenuItem, Card,
+         CardContent, CardActionArea, Box, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -26,6 +26,8 @@ import KitchenIcon from '@mui/icons-material/Kitchen';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import BookIcon from '@mui/icons-material/Book';
 import ProductContext from '../context/Products';
+
+
 const images = [
   {
     url: 'https://i.pinimg.com/564x/09/c5/00/09c50003f03127703200c00ac9173266.jpg',
@@ -107,7 +109,7 @@ const images = [
 const ImageButton = styled('button')(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  height: '160px', // Yüksekliği biraz azaltarak daha uygun bir boyut sağladık
+  height: '160px', 
   margin: '8px',
   display: 'flex',
   justifyContent: 'center',
@@ -174,23 +176,23 @@ const ImageMarked = styled('div')({
 
 const ResponsiveBox = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(5, 1fr)', // 5 sütun olarak ayarlandı
+  gridTemplateColumns: 'repeat(5, 1fr)', 
   gap: '16px',
   justifyContent: 'center',
   alignItems: 'center',
   width: '100%',
   padding: '16px',
   [theme.breakpoints.down('sm')]: {
-    gridTemplateColumns: 'repeat(2, 1fr)', // Küçük ekranlarda 2 sütun
+    gridTemplateColumns: 'repeat(2, 1fr)',
   },
   [theme.breakpoints.between('sm', 'md')]: {
-    gridTemplateColumns: 'repeat(3, 1fr)', // Orta ekranlarda 3 sütun
+    gridTemplateColumns: 'repeat(3, 1fr)', 
   },
   [theme.breakpoints.between('md', 'lg')]: {
-    gridTemplateColumns: 'repeat(4, 1fr)', // Orta-büyük ekranlarda 4 sütun
+    gridTemplateColumns: 'repeat(4, 1fr)', 
   },
   [theme.breakpoints.up('lg')]: {
-    gridTemplateColumns: 'repeat(5, 1fr)', // Büyük ekranlarda 5 sütun
+    gridTemplateColumns: 'repeat(5, 1fr)', 
   },
 }));
 
@@ -258,8 +260,7 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
 );
 
 export const AnaEkran = () => {
-  const { data, isError, isLoading, fetchProducts,setActiveCategory } = useContext(ProductContext);
-  const [storeStatus, setStoreStatus] = useState('Checking...');
+  const {setActiveCategory } = useContext(ProductContext);
   const {
     isOpen,
     version,
@@ -269,58 +270,40 @@ export const AnaEkran = () => {
     fetchVersionFromMockService,
     fetchUserData,
     handleLogout,
+    fetchDurum,
+    durumData,
+    handleControl,
+    dialogOpen,handleCloseDialog
   } = useContext(ViewContext);
   const navigate = useNavigate();
  
   useEffect(() => {
     fetchVersionFromMockService();
     fetchUserData();
+    fetchDurum();
   }, []);
 
   const { theme } = useContext(TemaContext);
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme(); 
   const categories = ['All', 'Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
+ 
   const handleCategoryClick = (category) => {
-    setActiveCategory(category);
-    navigate('/products');
+    if (handleControl()) {
+     
+      setActiveCategory(category);
+      navigate('/products');
+    }
+   
+  
   };
-  const CategoryItem = styled('div')(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#fff',
-    color: theme.palette.mode === 'dark' ? '#fff' : '#333',
-    padding: theme.spacing(2),
-    borderRadius: theme.spacing(1),
-    boxShadow: theme.shadows[2],
-    textAlign: 'center',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.mode === 'dark' ? '#555' : '#f0f0f0',
-    },
-  }));
-  useEffect(() => {
-    const fetchStoreStatus = async () => {
-      try {
-        const response = await fetch('/heartbeat');
-        console.log('Response:', response);
-        if (response.status === 200) {
-          const data = await response.json();
-          console.log('Data:', data);
-          setStoreStatus(data.message === 'Servis ayakta' ? 'Mağaza Çevrimiçi' : 'Mağaza Çevrimdışı');
-        } else {
-          setStoreStatus('Mağaza Çevrimdışı');
-        }
-      } catch (error) {
-        console.error('Error fetching store status:', error);
-        setStoreStatus('Mağaza durumu kontrol edilemedi');
-      }
-    };
-  
-    fetchStoreStatus();  
-    const intervalId = setInterval(fetchStoreStatus, 10000);
-  
-    return () => clearInterval(intervalId);
-  }, []);
-  
+
+
+  const handleNavigation = (path) => {
+    if (handleControl()) {
+      navigate(path);
+    }
+  };
 
   const MainContent = styled(Box)(({ theme }) => ({
     flexGrow: 1, 
@@ -366,6 +349,9 @@ export const AnaEkran = () => {
                   <Typography variant="body2" color="text.secondary">
                     Kullanıcı Kodu: {userData}
                   </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                   Mağaza durumu: {durumData}
+                  </Typography>
                 </CardContent>
               </Card>
             </Box>
@@ -379,19 +365,22 @@ export const AnaEkran = () => {
             </IconButton>
           </DrawerHeader>
           <Divider />
-          <List>
-            {['Anasayfa', 'Ödeme', 'Satış'].map((text, index) => (
+          <List >
+            {['Anasayfa', 'Ödeme', 'Satış','Ayarlar'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton
                   onClick={() => {
                     if (text === 'Anasayfa') {
-                      navigate('/AnaEkran');
+                      handleNavigation('/AnaEkran');
                     } else if (text === 'Ödeme') {
-                      navigate('/PaymentScreen');
+                      handleNavigation('/PaymentScreen');
                     } else if (text === 'Satış') {
-                      navigate('/SaleScreen');
+                      handleNavigation('/SaleScreen');
+                    }else if (text === 'Ayarlar') {
+                      handleNavigation('/Settings');
                     }
-                  }}
+
+                  }} 
                   sx={{
                     '&:hover': {
                       backgroundColor: '#616161',
@@ -399,23 +388,13 @@ export const AnaEkran = () => {
                   }}
                 >
                   <ListItemIcon>
-                    {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : <PointOfSaleIcon />}
+                    {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : text === 'Satış' ? <PointOfSaleIcon /> : <SettingsIcon/>}
                   </ListItemIcon>
                   <ListItemText primary={text} />
                 </ListItemButton>
               </ListItem>
             ))}
-            <ListItem key="settings" disablePadding>
-              <ListItemButton
-                onClick={() => navigate('/Settings')}
-                sx={{ '&:hover': { backgroundColor: '#616161' } }}
-              >
-                <ListItemIcon>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Ayarlar" />
-              </ListItemButton>
-            </ListItem>
+            
           </List>
           <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
             <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
@@ -426,6 +405,21 @@ export const AnaEkran = () => {
             </ListItemButton>
           </ListItem>
         </StyledDrawer>
+
+        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+          <DialogTitle>Mağaza Durumu</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Mağaza şu anda çevrimdışı. Lütfen daha sonra tekrar deneyin.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Kapat
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <MainContent>
         <ResponsiveBox>
       {images.map((image) => (
@@ -457,6 +451,7 @@ export const AnaEkran = () => {
       ))}
     </ResponsiveBox>
     </MainContent>
+    
       </Box>
     </MuiThemeProvider>
   );
