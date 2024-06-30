@@ -88,13 +88,16 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
     }),
     ...(!open && {
       ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
+      '& .MuiDrawer-paper': {
+        ...closedMixin(theme),
+        marginTop: '20px', 
+      },
     }),
   }),
 );
 
 const PaymentScreen = () => {
-  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'sil', 'onayla'];
+  const keys = ['1', '2', '3', 'onayla', '4','5', '6','sil', '7', '8', '9', '0', , ];
 
   const paymentMethods = [
     'Belge Bitir', 'Belge İptal', 'Nakit', 'Kredi',
@@ -343,13 +346,13 @@ const calculateRemainingAmount = () => {
               Ödeme Ekranı
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
+            <Card sx={{ minWidth: 120,margin: 1, backgroundColor: '#bdbdbd', borderRadius: 8, backgroundColor: '#f0f0f0'}}>
               <CardContent sx={{ py: 1 }}>
                 <Typography variant="body2" color="text.secondary">
-                  <strong>Versiyon:</strong> {version}
+                 Versiyon: {version}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  <strong>Kullanıcı Kodu:</strong> {userData}
+                 Kullanıcı Kodu: {userData}
                 </Typography>
               </CardContent>
             </Card>

@@ -103,7 +103,10 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
         }),
         ...(!open && {
             ...closedMixin(theme),
-            '& .MuiDrawer-paper': closedMixin(theme),
+            '& .MuiDrawer-paper': {
+                ...closedMixin(theme),
+                marginTop: '20px', 
+              },
         }),
     })
 );
@@ -194,8 +197,8 @@ export const Product = () => {
                             Ürünler
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
-                                <CardContent>
+                        <Card sx={{ minWidth: 120,margin: 1, backgroundColor: '#bdbdbd', borderRadius: 8, backgroundColor: '#f0f0f0',}}>
+                        <CardContent>
                                     <Typography variant="body2" color="text.secondary">
                                         Version: {version}
                                     </Typography>
@@ -265,7 +268,7 @@ export const Product = () => {
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <DrawerHeader />
                     <Grid container justifyContent="center">
-                        <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
+                        <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 2, mt:2, flexWrap: 'wrap' }}>
                             {categories.map((category) => (
                                 <Button
                                     key={category}
@@ -306,10 +309,12 @@ export const Product = () => {
                 <Typography variant="body2" color="text.secondary">
                   Barkod: {product.barcode}
                 </Typography>
+                </Box>
+                
                 <Typography variant="h4">
                   {product.price}₺
                 </Typography>
-              </Box>
+              
             </CardContent>
             <CardActions sx={{ justifyContent: 'center' }}>
               <Tooltip title="Add to Basket">
