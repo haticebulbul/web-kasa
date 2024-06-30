@@ -1,6 +1,6 @@
 import './App.css';
 import { Login } from './components/Login';
-import { AnaEkran } from './components/AnaEkran'; 
+import {AnaEkran}  from './components/AnaEkran'; 
 import { Routes, Route } from 'react-router-dom';
 import React from 'react';
 import PaymentScreen from './components/PaymentScreen';

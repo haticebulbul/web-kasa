@@ -90,7 +90,10 @@ const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
     }),
     ...(!open && {
       ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
+      '& .MuiDrawer-paper': {
+        ...closedMixin(theme),
+        marginTop: '20px', 
+      },
     }),
   })
 );
@@ -142,7 +145,7 @@ const Settings = () => {
               Settings
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Card sx={{ minWidth: 120, backgroundColor: '#bdbdbd', borderRadius: 5 }}>
+            <Card sx={{ minWidth: 120,margin: 1, backgroundColor: '#bdbdbd', borderRadius: 8, backgroundColor: '#f0f0f0',}}>
                 <CardContent>
                   <Typography variant="body2" color="text.secondary">
                     Version: {version}

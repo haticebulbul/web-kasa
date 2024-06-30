@@ -1,16 +1,19 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { Typography, CircularProgress } from '@mui/material';
 import ProductContext from '../context/Products';
+import ReactToPrint from 'react-to-print';
 import '../Receipt.css';
 
-const Receipt = React.forwardRef((props, ref) => {
-    const { completedTransactionDetails, getTotalPriceWithPromotion, calculateTotalPaid,handleConfirmEmail,sendEmail } = useContext(ProductContext);
+const Receipt = () => {
+    const { completedTransactionDetails, getTotalPriceWithPromotion, calculateTotalPaid, sendEmail } = useContext(ProductContext);
     const [isPrinting, setIsPrinting] = useState(false);
-    
+
+    const receiptRef = useRef(null);
+
     const handlePrint = async () => {
         setIsPrinting(true);
         try {
-            const email = 'receiver@example.com'; // Burada e-posta alıcısını belirtiyorsunuz
+            const email = 'receiver@example.com'; 
             const emailSentSuccessfully = await sendEmail(email, completedTransactionDetails);
 
             if (emailSentSuccessfully) {
@@ -24,9 +27,6 @@ const Receipt = React.forwardRef((props, ref) => {
             setIsPrinting(false);
         }
     };
-
- 
-    
 
     const calculateRemainingAmount = () => {
         const totalPrice = getTotalPriceWithPromotion();
@@ -42,7 +42,7 @@ const Receipt = React.forwardRef((props, ref) => {
 
     return (
         <div>
-            <div className="fis-container" ref={ref}>
+            <div className="fis-container" ref={receiptRef}>
                 <div className="fis-header">
                     <p className="market-adi">32 Bit</p>
                     <p className="tarih">Tarih: {new Date().toLocaleString()}</p>
@@ -88,11 +88,17 @@ const Receipt = React.forwardRef((props, ref) => {
                     </div>
                 )}
             </div>
-            <button className="yazdir-buton" onClick={handlePrint} disabled={isPrinting}>
-                {isPrinting ? 'Yazdırılıyor...' : 'Yazdır'}
-            </button>
+            <ReactToPrint
+                trigger={() => (
+                    <button className="yazdir-buton" onClick={handlePrint} disabled={isPrinting}>
+                        {isPrinting ? 'Yazdırılıyor...' : 'Yazdır'}
+                    </button>
+                )}
+                content={() => receiptRef.current}
+                onAfterPrint={handlePrint}
+            />
         </div>
     );
-});
+};
 
 export default Receipt;
