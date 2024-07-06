@@ -44,6 +44,7 @@ Bu proje, bir web tabanlı kasa uygulamasıdır. Uygulama, çeşitli satış ve 
 * [![React i18next][React-i18next.js]][React-i18next-url] - Versiyon: ^14.1.2
 * [![React Infinite Scroll Component][React-Infinite-Scroll-Component.js]][React-Infinite-Scroll-Component-url] - Versiyon: ^6.1.0
 * [![React Simple Keyboard][React-Simple-Keyboard.js]][React-Simple-Keyboard-url] - Versiyon: ^3.7.118
+* [![React To Print][React-To-Print.js]][React-To-Print-url] - Versiyon: ^2.15.1
 
 
 
@@ -153,6 +154,9 @@ Project Link: [https://github.com/haticebulbul/web-kasa.git](https://github.com/
 [i18next-BLD.js]: https://img.shields.io/badge/i18next_Browser_Language_Detector-20232A?style=for-the-badge&logo=i18next&logoColor=61DAFB
 [i18next-BLD-url]: https://www.npmjs.com/package/i18next-browser-languagedetector
 [React-i18next.js]: https://img.shields.io/badge/React_i18next-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-To-Print.js]: https://react-to-print.js.org/logo.svg
+[React-To-Print-url]: https://react-to-print.js.org
+
 [React-i18next-url]: https://www.npmjs.com/package/react-i18next
 [React-Infinite-Scroll-Component.js]: https://img.shields.io/badge/React_Infinite_Scroll_Component-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-Infinite-Scroll-Component-url]: https://www.npmjs.com/package/react-infinite-scroll-component
