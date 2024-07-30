@@ -5,23 +5,19 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { ViewProvider } from './context/View';
-import { I18nextProvider } from 'react-i18next';
-import i18next from './i18next';
-import { TemaProvider, lightTheme, darkTheme } from './context/Tema'; 
+import { TemaProvider, lightTheme } from './context/Tema'; 
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'; 
 import { ProductProvider } from './context/Products';
 
 async function initializeApp() {
-  // 1. Sahte Ortamı Başlat 
+
   if (process.env.NODE_ENV === 'development') {
     const { worker } = await import('./mocks/browser');
-    await worker.start(); // Sahte ortamın hazır olmasını bekleyin
+    await worker.start(); 
   }
 
-  // 2. i18next'i Başlatın
-  await i18next.init(); // Çevirilerin yüklendiğinden emin olun
-
-  // 3. Uygulamayı Oluşturun
+ 
+ 
   const rootElement = document.getElementById('root');
   const root = ReactDOM.createRoot(rootElement);
   root.render(
@@ -38,7 +34,7 @@ async function initializeApp() {
     </BrowserRouter>
   );
 
-  // 4. Web Vitals Raporla 
+  
   reportWebVitals();
 }
 
