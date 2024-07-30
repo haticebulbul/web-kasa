@@ -1,4 +1,5 @@
-import React, { createContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useEffect,useRef } from 'react';
+import axios from 'axios';
 
 const ProductContext = createContext();
 
@@ -27,17 +28,34 @@ export const ProductProvider = ({ children }) => {
         totalPriceWithPromotion: 0,
         changeAmount: 0,
     });
+    const [email, setEmail] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-   
     
     const categories = ['All', 'Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
 
-    const fetchProducts = useCallback(async (pageNum = 1, resetData = false, activeCategory = "All") => {
+    const fetchProducts = useCallback(async (pageNum = 1, resetData = false, activeCategory = 'All') => {
+        if (isLoading) return; 
+
+      
         try {
             setIsLoading(true);
             setIsError(false);
-            const resPro = await fetch(`/products?page=${pageNum}&category=${activeCategory}`);
-            const res = await resPro.json();
+    
+            const response = await axios.get('/products', {
+                params: {
+                    page: pageNum,
+                    category: activeCategory
+                }
+            });
+    
+            const res = response.data;
+    
             if (Array.isArray(res)) {
                 const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
                 setData(prevData => resetData ? sortedData : [...prevData, ...sortedData]);
@@ -53,6 +71,9 @@ export const ProductProvider = ({ children }) => {
             setPage(pageNum);
         }
     }, []);
+    const fetchMoreData = () => {
+        fetchProducts(page + 1);
+    };
 
     const addToBasket = (product) => {
         setBasket(prevBasket => {
@@ -90,11 +111,13 @@ export const ProductProvider = ({ children }) => {
         fetchProducts(page + 1, false, activeCategory);
     }, [fetchProducts, isLoading, hasMore, page, activeCategory]);
 
+  
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
+    
     useEffect(() => {
         fetchProducts(1, true, "All");
     }, [fetchProducts]);
@@ -104,14 +127,14 @@ export const ProductProvider = ({ children }) => {
     }, [activeCategory, fetchProducts]);
 
   
-        const filteredProducts = data;
+        const  filteredProducts = data;
 
     const getTotalPrice = () => {
         return basket.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
 
-    const getTotalPriceWithPromotion = () => {
+     const getTotalPriceWithPromotion = () => {
         if (!promotionActive) {
             return getTotalPrice();
         }
@@ -164,50 +187,80 @@ export const ProductProvider = ({ children }) => {
         setQuantity('');
         setQuantityInputMode(false);
       };
-      const [email, setEmail] = useState('');
-      const [emailSent, setEmailSent] = useState(false);
-      const [keyboardVisible, setKeyboardVisible] = useState(false);
-      const [open, setOpen] = useState(false);
-      const handleClose = () => {
-        setOpen(false);
-        setKeyboardVisible(false);
+   
+
+   
+      const receiptRef = useRef();
+      const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
       };
     
+      const handleConfirmEmail = async () => {
+        if (!validateEmail(email)) {
+          setSnackbarMessage('Geçerli bir e-posta adresi girin.');
+          setSnackbarSeverity('error'); 
+          setSnackbarOpen(true);
+          return;
+        }
+    
+        const success = await sendEmail(email, completedTransactionDetails);
+        if (success) {
+          setSnackbarMessage('E-posta başarıyla gönderildi.');
+          setSnackbarSeverity('success'); 
+        } else {
+          setSnackbarMessage('E-posta gönderilirken bir hata oluştu.');
+          setSnackbarSeverity('error');
+        }
+        setSnackbarOpen(true);
+        handleClose();
+      };
+    
+  
+      const handleOpen = () => {
+        setOpen(true);
+      };
       const sendEmail = async (emailAddress, completedTransactionDetails) => {
         try {
-           
-            const response = await fetch('/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: emailAddress,
-                    receipt: {
-                        basket: completedTransactionDetails.basket,
-                        totalPaid: completedTransactionDetails.totalPaid,
-                        totalPriceWithPromotion: completedTransactionDetails.totalPriceWithPromotion,
-                        changeAmount: completedTransactionDetails.changeAmount,
-                    },
-                }),
-            });
-
-            if (response.ok) {
-                console.log('E-posta başarıyla gönderildi.');
-                return true; 
-            } else {
-                console.error('E-posta gönderilirken bir hata oluştu.');
-                return false;
-            }
+          const response = await fetch('/send-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: emailAddress,
+              receipt: {
+                basket: completedTransactionDetails.basket,
+                totalPaid: completedTransactionDetails.totalPaid,
+                totalPriceWithPromotion: completedTransactionDetails.totalPriceWithPromotion,
+                changeAmount: completedTransactionDetails.changeAmount,
+              },
+            }),
+          });
+    
+          if (response.ok) {
+            setSnackbarMessage('E-posta başarıyla gönderildi.');
+            setSnackbarSeverity('success');
+            return true;
+          } else {
+            setSnackbarMessage('E-posta gönderilirken bir hata oluştu.');
+            setSnackbarSeverity('error');
+            return false;
+          }
         } catch (error) {
-            console.error('E-posta gönderilirken bir hata oluştu:', error);
-            return false; 
+          setSnackbarMessage('E-posta gönderilirken bir hata oluştu.');
+          setSnackbarSeverity('error');
+          return false;
         }
-    };
-        const handleConfirmEmail = async () => {
-           sendEmail(email, completedTransactionDetails)
-            handleClose();
-        };
+      };
+    
+      const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+      };
+      const handleClose = () => {
+        setOpen(false);
+      };
+    
     return (
         <ProductContext.Provider value={{
             isLoading, isError,setIsError, data, page, setPage,hasMore, fetchProducts, handleScroll, setQuantity,
@@ -215,9 +268,9 @@ export const ProductProvider = ({ children }) => {
             handleBarcodeScan, barcode, setBarcode, handleInputChange, handleScan, getTotalPrice,setBasket,
             getTotalPriceWithPromotion, clearBasket, toggleSelectItem, selectedItems, removeSelectedItems,
             applyPromotion, promotion, adjustProductQuantity, startQuantityInputMode, stopQuantityInputMode,completedTransactionDetails, setCompletedTransactionDetails,
-            partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,    clearBasket,     setCompletedTransaction,
-            handleConfirmEmail,sendEmail,setOpen,setEmail,setEmailSent,setKeyboardVisible,keyboardVisible,handleClose,email,open
-
+            partialPayments,setPartialPayments, setQuantityInputMode,stopQuantityInputMode,   clearBasket,     setCompletedTransaction,
+            setOpen,setEmail,setEmailSent,setKeyboardVisible,keyboardVisible,email,open,sendEmail,fetchMoreData,
+           snackbarOpen, snackbarMessage, handleCloseSnackbar,handleConfirmEmail ,handleClose,snackbarSeverity
         }}>
             {children}
         </ProductContext.Provider>

@@ -7,7 +7,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { ViewProvider } from './context/View';
 import { I18nextProvider } from 'react-i18next';
 import i18next from './i18next';
-import { LanguageProvider } from './context/LanguageContext';
 import { TemaProvider, lightTheme, darkTheme } from './context/Tema'; 
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'; 
 import { ProductProvider } from './context/Products';
@@ -23,7 +22,8 @@ async function initializeApp() {
   await i18next.init(); // Çevirilerin yüklendiğinden emin olun
 
   // 3. Uygulamayı Oluşturun
-  const root = ReactDOM.createRoot(document.getElementById('root'));
+  const rootElement = document.getElementById('root');
+  const root = ReactDOM.createRoot(rootElement);
   root.render(
     <BrowserRouter>
       <ViewProvider>

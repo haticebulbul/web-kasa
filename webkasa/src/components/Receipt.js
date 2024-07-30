@@ -5,100 +5,89 @@ import ReactToPrint from 'react-to-print';
 import '../Receipt.css';
 
 const Receipt = () => {
-    const { completedTransactionDetails, getTotalPriceWithPromotion, calculateTotalPaid, sendEmail } = useContext(ProductContext);
-    const [isPrinting, setIsPrinting] = useState(false);
+  const { completedTransactionDetails, getTotalPriceWithPromotion, calculateTotalPaid } = useContext(ProductContext);
+  const [isPrinting, setIsPrinting] = useState(false);
 
-    const receiptRef = useRef(null);
+  const receiptRef = useRef(null);
+  const handleBeforePrint = () => {
+    setIsPrinting(true);
+  };
 
-    const handlePrint = async () => {
-        setIsPrinting(true);
-        try {
-            const email = 'receiver@example.com'; 
-            const emailSentSuccessfully = await sendEmail(email, completedTransactionDetails);
+  const handleAfterPrint = () => {
+    setIsPrinting(false);
+  };
+  const calculateRemainingAmount = () => {
+    const totalPrice = getTotalPriceWithPromotion();
+    const totalPaid = calculateTotalPaid();
+    return totalPrice - totalPaid;
+  };
 
-            if (emailSentSuccessfully) {
-                console.log('Email successfully sent to:', email);
-            } else {
-                console.error('Failed to send email to:', email);
-            }
-        } catch (error) {
-            console.error('E-posta gönderilirken bir hata oluştu:', error);
-        } finally {
-            setIsPrinting(false);
-        }
-    };
+  if (!completedTransactionDetails) {
+    return <Typography variant="h6">İşlem detayı bulunamadı.</Typography>;
+  }
 
-    const calculateRemainingAmount = () => {
-        const totalPrice = getTotalPriceWithPromotion();
-        const totalPaid = calculateTotalPaid();
-        return totalPrice - totalPaid;
-    };
+  const { basket, totalPaid, totalPriceWithPromotion, changeAmount } = completedTransactionDetails;
 
-    if (!completedTransactionDetails) {
-        return <Typography variant="h6">İşlem detayı bulunamadı.</Typography>;
-    }
-
-    const { basket, totalPaid, totalPriceWithPromotion, changeAmount } = completedTransactionDetails;
-
-    return (
-        <div>
+  return (
+    <div className="receipt-container">
             <div className="fis-container" ref={receiptRef}>
-                <div className="fis-header">
-                    <p className="market-adi">32 Bit</p>
-                    <p className="tarih">Tarih: {new Date().toLocaleString()}</p>
-                </div>
-                <div className="fis-cizgi"></div>
-                <div className="urunler">
-                    {basket.map((item) => {
-                        const discountQuantity = Math.floor(item.quantity / 3);
-                        const normalQuantity = item.quantity - discountQuantity;
-                        const totalItemPrice = normalQuantity * item.price;
-
-                        return (
-                            <div className="urun-satir" key={item.id}>
-                                <span className="urun-adi">{item.name}</span>
-                                <span className="urun-adet">{normalQuantity} x {item.price.toFixed(2)}</span>
-                                <span className="urun-tutar">{totalItemPrice.toFixed(2)}</span>
-                            </div>
-                        );
-                    })}
-                </div>
-                <div className="fis-cizgi"></div>
-                <div className="fis-footer">
-                    <Typography variant="h6" align="right" gutterBottom>
-                        Toplam Tutar: {totalPriceWithPromotion.toFixed(2)} TL
-                    </Typography>
-                    <Typography variant="h6" align="right" gutterBottom>
-                        Ödenen Tutar: {totalPaid.toFixed(2)} TL
-                    </Typography>
-                    {changeAmount > 0 && (
-                        <Typography variant="h6" align="right" gutterBottom>
-                            Para Üstü: {changeAmount.toFixed(2)} TL
-                        </Typography>
-                    )}
-                    {changeAmount === null && (
-                        <Typography variant="h6" align="right" gutterBottom>
-                            Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
-                        </Typography>
-                    )}
-                </div>
-                {isPrinting && (
-                    <div className="overlay">
-                        <CircularProgress />
-                    </div>
-                )}
-            </div>
-            <ReactToPrint
-                trigger={() => (
-                    <button className="yazdir-buton" onClick={handlePrint} disabled={isPrinting}>
-                        {isPrinting ? 'Yazdırılıyor...' : 'Yazdır'}
-                    </button>
-                )}
-                content={() => receiptRef.current}
-                onAfterPrint={handlePrint}
-            />
+        <div className="fis-header">
+          <p className="market-adi">32 Bit</p>
+          <p className="tarih">Tarih: {new Date().toLocaleString()}</p>
         </div>
-    );
+        <div className="fis-cizgi"></div>
+        <div className="urunler">
+          {basket.map((item) => {
+            const discountQuantity = Math.floor(item.quantity / 3);
+            const normalQuantity = item.quantity - discountQuantity;
+            const totalItemPrice = normalQuantity * item.price;
+
+            return (
+              <div className="urun-satir" key={item.id}>
+                <span className="urun-adi">{item.name}</span>
+                <span className="urun-adet">{normalQuantity} x {item.price.toFixed(2)}</span>
+                <span className="urun-tutar">{totalItemPrice.toFixed(2)}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="fis-cizgi"></div>
+        <div className="fis-footer">
+          <Typography variant="h6" align="right" gutterBottom>
+            Toplam Tutar: {totalPriceWithPromotion.toFixed(2)} TL
+          </Typography>
+          <Typography variant="h6" align="right" gutterBottom>
+            Ödenen Tutar: {totalPaid.toFixed(2)} TL
+          </Typography>
+          {changeAmount > 0 && (
+            <Typography variant="h6" align="right" gutterBottom>
+              Para Üstü: {changeAmount.toFixed(2)} TL
+            </Typography>
+          )}
+          {changeAmount === null && (
+            <Typography variant="h6" align="right" gutterBottom>
+              Kalan Tutar: {calculateRemainingAmount().toFixed(2)} TL
+            </Typography>
+          )}
+        </div>
+        {isPrinting && (
+          <div className="overlay">
+            <CircularProgress />
+          </div>
+        )}
+      </div>
+      <ReactToPrint
+        trigger={() => (
+          <button className="yazdir-buton" disabled={isPrinting}>
+            {isPrinting ? 'Yazdırılıyor...' : 'Yazdır'}
+          </button>
+        )}
+        content={() => receiptRef.current}
+        onBeforePrint={handleBeforePrint}
+        onAfterPrint={handleAfterPrint}
+      />
+    </div>
+  );
 };
 
 export default Receipt;

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect,useCallback,useMemo } from 'react'
 import { Link } from 'react-router-dom';
-import { AppBar,Table,TableCell,TableRow,TableBody,TableContainer,TableHead, List,ButtonBase,TextField,InputBase,InputAdornment,Checkbox, Drawer, Toolbar, IconButton, Typography, Stack, Button, Menu, MenuItem, Card, CardContent, Box, Divider, Grid } from '@mui/material'
+import { AppBar,Table,TableCell,TableRow,TableBody,TableContainer,TableHead, List,ButtonBase,TextField,InputBase,InputAdornment,Checkbox, Drawer, Toolbar, IconButton, Typography, Stack, Button,Card, CardContent, Box, Divider, Grid } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
@@ -17,15 +17,7 @@ import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
-import { navigate } from 'react-router-dom';
 import ViewContext from '../context/View'
-import { Login } from './Login';
-import { worker } from '../mocks/browser';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import SwipeableViews from 'react-swipeable-views';
-import { autoPlay } from 'react-swipeable-views-utils';
-import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
@@ -115,7 +107,7 @@ const ImageButton = styled(ButtonBase)(({ theme }) => ({
   position: 'relative',
   height: 167,
   [theme.breakpoints.down('sm')]: {
-    width: '100% !important', // Overrides inline-style
+    width: '100% !important', 
     height: 100,
   },
   '&:hover, &.Mui-focusVisible': {
@@ -177,71 +169,6 @@ const ImageMarked = styled('span')(({ theme }) => ({
 
 
 
-const drawerWidth = 240; 
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-});
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-}));
-const StyledAppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#37474f', 
-}));
-const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-     
-      '& .MuiDrawer-paper': {
-        ...closedMixin(theme),
-        marginTop: '20px', 
-      },
-    }),
-  }),
-);
 export const SaleScreen = () => {
     const {
         isOpen,
@@ -251,30 +178,30 @@ export const SaleScreen = () => {
         handleDrawerClose,
         fetchVersionFromMockService,
         fetchUserData,
-        handleLogout,
+        handleLogout,DrawerHeader, StyledAppBar, StyledDrawer
       } = useContext(ViewContext);
-      const [input, setInput] = useState('');
-      const { getTotalPrice ,barcode,handleBarcodeScan, setBasket,
-        setBarcode, handleInputChange, handleScan, fetchProducts,stopQuantityInputMode,currentProduct, setCurrentProduct,
-         hasMore,setActiveCategory,basket,adjustProductQuantity ,setQuantityInputMode,quantityInputMode
-         ,currentProductId,setCurrentProductId,clearBasket,removeSelectedItems,selectedItems,toggleSelectItem,
-       applyPromotion,getTotalPriceWithPromotion,handleRowClick} = useContext(ProductContext);
+
+      const { getTotalPrice ,barcode, setBasket,
+         handleInputChange, handleScan, fetchProducts,fetchMoreData,
+         hasMore,setActiveCategory,basket,clearBasket,removeSelectedItems,selectedItems,toggleSelectItem,
+       applyPromotion,getTotalPriceWithPromotion} = useContext(ProductContext);
       
-      const { theme } = useContext(TemaContext);
+      const { theme,backgroundColor } = useContext(TemaContext);
       const currentTheme = theme === 'light' ? lightTheme : darkTheme;
       const muiTheme = useTheme(); 
       const navigate = useNavigate();
       const [quantity, setQuantity] = useState('');
-      const [inputMode, setInputMode] = useState('barcode');
-      const keys = useMemo(() => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'C', 'Enter'], []);
+      const keys = useMemo(() => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0',], []);
       const paymentMethods = [
        
-        'Ödemeye Geç', 'Belge İptal', 'Satır İptal','Kampanyalar'
+        'Ödemeye Geç', 'Belge İptal', 'Satır İptal','3 al 2 öde kampanyası'
       ];
+
+
       useEffect(() => {
         fetchVersionFromMockService();
         fetchUserData();
-         fetchProducts(1); //
+         fetchProducts(1); 
       }, []);
 
      
@@ -284,28 +211,24 @@ export const SaleScreen = () => {
       };
       const [page, setPage] = useState(1);
 
-      const fetchMoreData = () => {
-        fetchProducts(page + 1);
-        setPage(page + 1);
-    };
+   
+    
+ 
+    
     const [showCheckboxes, setShowCheckboxes] = useState(false);
-    const [showPromotionOptions, setShowPromotionOptions] = useState(false);
     const [selectedItemId, setSelectedItemId] = useState(null);
+
     const handleKeyPress = (key) => {
       if (selectedItemId !== null) {
-        if (key === 'Enter') {
-          updateBasketQuantity(selectedItemId, quantity);
-          setQuantity('');
-          setSelectedItemId(null);
-        } else {
-          const newQuantity = key === 'C' ? '' : quantity + key;
-          setQuantity(newQuantity);
-          if (key !== 'C') {
-            updateBasketQuantity(selectedItemId, newQuantity);
-          }
+        if (key === 'Enter') return; 
+        const newQuantity = key === 'C' ? '' : quantity + key;
+        setQuantity(newQuantity);
+        if (key !== 'C') {
+          updateBasketQuantity(selectedItemId, newQuantity);
         }
       }
     };
+    
     const handlePaymentMethod = (method) => {
       if (method === 'Belge İptal') {
         clearBasket();
@@ -316,7 +239,7 @@ export const SaleScreen = () => {
         }
       } else if (method === 'Ödemeye Geç') {
         navigate("/paymentscreen");
-      } else if (method === 'Kampanyalar') {
+      } else if (method === '3 al 2 öde kampanyası') {
         applyPromotion('3_for_2');
       }
     };
@@ -336,22 +259,12 @@ export const SaleScreen = () => {
       );
     }, 300), []);
   
-    const handleEnterPress = useCallback((event) => {
-      if (event.key === 'Enter' && selectedItemId !== null) {
-        updateBasketQuantity(selectedItemId, quantity);
-        setQuantity('');
-        setSelectedItemId(null);
-        event.preventDefault();  // Prevent Enter key from inserting 'Enter' into the input field
+    const handleChange = (e) => {
+      const { value } = e.target;
+      if (/^\d*\.?\d*$/.test(value)) {
+        setQuantity(value);
       }
-    }, [quantity, selectedItemId, updateBasketQuantity]);
-  
-    useEffect(() => {
-      window.addEventListener('keydown', handleEnterPress);
-      return () => {
-        window.removeEventListener('keydown', handleEnterPress);
-      };
-    }, [handleEnterPress]);
-  
+    };
   return (
     <MuiThemeProvider theme={currentTheme}>
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'background.default', minHeight: '100vh' }}>
@@ -383,8 +296,13 @@ export const SaleScreen = () => {
             Satış Ekranı
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Card sx={{ minWidth: 120,margin: 1, backgroundColor: '#bdbdbd', borderRadius: 8, backgroundColor: '#f0f0f0',}}>
-              <CardContent sx={{ py: 1 }}>
+          <Card sx={{
+                minWidth: 120,
+                margin: 1,
+                backgroundColor: theme === 'light' ? backgroundColor : '#333',
+                borderRadius: 8,
+              }}>        
+                            <CardContent sx={{ py: 1 }}>
                 <Typography variant="body2" color="text.secondary">
                 Versiyon: {version}
                 </Typography>
@@ -398,60 +316,68 @@ export const SaleScreen = () => {
       </StyledAppBar>
   
       <Box sx={{ display: 'flex', flexGrow: 1, pt: '72px' }}>
-        <StyledDrawer variant="permanent" open={isOpen}>
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <List>
-            {['Anasayfa', 'Ödeme', 'Satış'].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    if (text === 'Anasayfa') {
-                      navigate('/AnaEkran');
-                    } else if (text === 'Ödeme') {
-                      navigate('/PaymentScreen');
-                    } else if (text === 'Satış') {
-                      navigate('/SaleScreen');
-                    }
-                  }}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: '#616161',
-                    },
-                  }}
-                >
-                  <ListItemIcon>
-                    {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : <PointOfSaleIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-            <ListItem key="settings" disablePadding>
-              <ListItemButton
-                onClick={() => navigate('/Settings')}
-                sx={{ '&:hover': { backgroundColor: '#616161' } }}
-              >
-                <ListItemIcon>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Ayarlar" />
-              </ListItemButton>
-            </ListItem>
-          </List>
-          <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
-            <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Çıkış Yap" />
-            </ListItemButton>
-          </ListItem>
-        </StyledDrawer>
+         <StyledDrawer variant="permanent" open={isOpen}>
+  <DrawerHeader>
+    <IconButton onClick={handleDrawerClose}>
+      {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+    </IconButton>
+  </DrawerHeader>
+  <Divider />
+  <List>
+    {['Anasayfa', 'Satış'].map((text, index) => (
+      <ListItem key={text} disablePadding>
+        <ListItemButton
+          onClick={() => {
+            if (text === 'Anasayfa') {
+              navigate('/AnaEkran');
+            } else if (text === 'Satış') {
+              navigate('/SaleScreen');
+            }
+          }}
+          sx={{
+            '&:hover': {
+              backgroundColor: '#616161',
+            },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            height: '56px', // AppBar height
+          }}
+        >
+          <ListItemIcon>
+            {text === 'Anasayfa' ? <HomeIcon /> : <PointOfSaleIcon />}
+          </ListItemIcon>
+          <ListItemText primary={text} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
+  <Box sx={{ flexGrow: 1 }} />
+  <List>
+    <ListItem key="settings" disablePadding>
+      <ListItemButton
+        onClick={() => navigate('/Settings')}
+        sx={{ '&:hover': { backgroundColor: '#616161' } }}
+      >
+        <ListItemIcon>
+          <SettingsIcon />
+        </ListItemIcon>
+        <ListItemText primary="Ayarlar" />
+      </ListItemButton>
+    </ListItem>
+    <ListItem key="logout" disablePadding>
+      <ListItemButton
+        onClick={handleLogout}
+        sx={{ '&:hover': { backgroundColor: '#616161' } }}
+      >
+        <ListItemIcon>
+          <LogoutIcon />
+        </ListItemIcon>
+        <ListItemText primary="Çıkış Yap" />
+      </ListItemButton>
+    </ListItem>
+  </List>
+</StyledDrawer>
   
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Grid container spacing={3}>
@@ -460,13 +386,13 @@ export const SaleScreen = () => {
           display={'flex'}
           flexDirection={'column'}
           alignItems={'center'}
-          sx={{ marginTop: '16px' }}
+          sx={{ marginTop: '10px' }}
         >
           <InputBase
             type="text"
             value={barcode}
             onChange={handleInputChange}
-            placeholder="Enter barcode"
+            placeholder="Barkod"
             sx={{
               width: '80%',
               marginBottom: '20px',
@@ -564,77 +490,84 @@ export const SaleScreen = () => {
       </Grid>
       <Grid item xs={12} md={8}>
       <Grid container spacing={3} sx={{ height: '100%' }}>
-      <Grid item xs={12} md={8}>
-        <Card sx={{ height: '100%' }}>
-          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" gutterBottom>
-              Sepet
-            </Typography>
-            <TableContainer component={Paper} sx={{ flex: 1, overflowY: 'auto' }}>
-              <InfiniteScroll
-                dataLength={basket.length}
-                next={fetchMoreData}
-                hasMore={hasMore}
-                scrollableTarget="scrollable-table"
-              >
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {showCheckboxes && (
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
-                            checked={basket.length > 0 && selectedItems.length === basket.length}
-                            onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
-                          />
-                        </TableCell>
-                      )}
-                      <TableCell>Ürün</TableCell>
-                      <TableCell align="right">Fiyat</TableCell>
-                      <TableCell align="right">Adet</TableCell>
-                      <TableCell align="right">Toplam</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {basket.map((item) => (
-                      <TableRow
-                        key={item.id}
-                        hover
-                        role="checkbox"
-                        aria-checked={selectedItems.includes(item.id)}
-                        tabIndex={-1}
-                        selected={selectedItems.includes(item.id)}
-                        onClick={() => {
-                          setSelectedItemId(item.id);
-                          setQuantity('');
-                        }}
-                      >
-                        {showCheckboxes && (
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={selectedItems.includes(item.id)}
-                              onChange={() => toggleSelectItem(item.id)}
-                            />
-                          </TableCell>
-                        )}
-                        <TableCell component="th" scope="row">
-                          {item.name}
-                        </TableCell>
-                        <TableCell align="right">{item.price}₺</TableCell>
-                        <TableCell align="right">{item.quantity}</TableCell>
-                        <TableCell align="right">{item.price * item.quantity}₺</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </InfiniteScroll>
-            </TableContainer>
-            <Typography variant="h6" align="right" gutterBottom>Ara Toplam: {getTotalPrice().toFixed(2)}₺</Typography>
-            <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat: {getTotalPriceWithPromotion().toFixed(2)}₺</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={8} sx={{ marginTop: '10px' }}>
+  <Card sx={{ height: '100%' }}>
+    <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom>
+        Sepet
+      </Typography>
+      <TableContainer
+        component={Paper}
+        sx={{ flex: 1, overflowY: 'auto', maxHeight: 400 }} 
+        id="scrollable-table"
+      >
+        <InfiniteScroll
+          dataLength={basket.length}
+          next={fetchMoreData}
+          hasMore={hasMore}
+          scrollableTarget="scrollable-table"
+          endMessage={<Typography variant="body2" align="center">Daha fazla ürün bulunmuyor.</Typography>}
+        >
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {showCheckboxes && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      indeterminate={selectedItems.length > 0 && selectedItems.length < basket.length}
+                      checked={basket.length > 0 && selectedItems.length === basket.length}
+                      onChange={(e) => toggleSelectItem(e.target.checked ? basket.map(item => item.id) : [])}
+                    />
+                  </TableCell>
+                )}
+                <TableCell>Ürün</TableCell>
+                <TableCell align="right">Fiyat</TableCell>
+                <TableCell align="right">Adet</TableCell>
+                <TableCell align="right">Toplam</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {basket.map((item) => (
+                <TableRow
+                  key={item.id}
+                  hover
+                  role="checkbox"
+                  aria-checked={selectedItems.includes(item.id)}
+                  tabIndex={-1}
+                  selected={selectedItems.includes(item.id)}
+                  onClick={() => {
+                    setSelectedItemId(item.id);
+                    setQuantity('');
+                  }}
+                >
+                  {showCheckboxes && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => toggleSelectItem(item.id)}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell component="th" scope="row">
+                    {item.name}
+                  </TableCell>
+                  <TableCell align="right">{item.price}₺</TableCell>
+                  <TableCell align="right">{item.quantity}</TableCell>
+                  <TableCell align="right">{item.price * item.quantity}₺</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </InfiniteScroll>
+      </TableContainer>
+      <Typography variant="h6" align="right" gutterBottom>Ara Toplam: {getTotalPrice().toFixed(2)}₺</Typography>
+      <Typography variant="h6" align="right" gutterBottom>Toplam Fiyat: {getTotalPriceWithPromotion().toFixed(2)}₺</Typography>
+    </CardContent>
+  </Card>
+</Grid>
+
+
+      <Grid item xs={12} md={4} sx={{marginTop:'10px'}}>
         <Card sx={{ height: '100%' }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} sx={{ flex: 1 }}>
@@ -652,14 +585,13 @@ export const SaleScreen = () => {
             </Box>
             <Divider sx={{ my: 2 }} />
             <TextField
-              label="Miktar"
-              variant="outlined"
-              fullWidth
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              sx={{ mb: 2 }}
-              onKeyDown={(e) => e.key === 'Enter' && handleEnterPress(e)}
-            />
+        label="Miktar"
+        variant="outlined"
+        fullWidth
+        value={quantity}
+        onChange={handleChange}
+        sx={{ mb: 2 }}
+      />
             <Box display="flex" flexWrap="wrap" justifyContent="center" alignItems="center" gap={1}>
               {keys.map((key) => (
                 <Button

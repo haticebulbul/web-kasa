@@ -1,22 +1,24 @@
 import { http, HttpResponse } from 'msw'
 import { faker } from '@faker-js/faker'; 
 import { v4 as uuidv4 } from 'uuid';
-import { json } from 'react-router';
 
 
-const categories = ['Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık', 'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
 
-const getRandomCategory = () => {
+const categories = ['Meyve', "Sebze", 'Süt Ürünleri', 'İçecek', 'Atıştırmalık',
+                    'Temel Gıda', 'Fırından', 'Et Ürünleri', 'Dondurulmuş Gıda', 'Dondurma', 'Hazır Gıda', 
+                    'Kuruyemiş', 'Tatlı', 'Temizlik', 'Kişisel Bakım'];
+
+const getRandomCategory = () => { 
   return categories[Math.floor(Math.random() * categories.length)];
-};
-const generateProducts = (count) => {
-  console.log('genereteproduct')
-  const products = [];
-  for (let i = 1; i <= count; i++) {
-    const id = i; 
-    products.push({
-      id: id,
-      barcode: uuidv4(),
+}; 
+
+const generateProducts = (count) => { 
+  const products = []; 
+  for (let i = 1; i <= count; i++) { 
+    const id = i;
+    products.push({ 
+      id: id, 
+      barcode: uuidv4(), 
       name: faker.commerce.productName(),
       price: parseFloat(faker.commerce.price()),
       image: faker.image.url(),
@@ -55,7 +57,7 @@ export const handlers = [
      
       const users = [
         { kullaniciKodu: '123', sifre: 'hatice' },
-        { kullaniciKodu: '456', sifre: 'barancan' }, 
+      
       ];
 
       const isValidUser = users.some(

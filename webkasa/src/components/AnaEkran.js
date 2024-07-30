@@ -1,18 +1,16 @@
-import React, { useState, useContext, useEffect } from 'react'
-import { AppBar, List, Drawer, Toolbar, IconButton, Grid,Typography,ButtonBase,Stack, Button, Menu, MenuItem, Card,
-         CardContent, CardActionArea, Box, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,  } from '@mui/material'
+import React, {  useContext, useEffect } from 'react'
+import { List, Toolbar, IconButton, Typography, Button, Card,
+  CardContent, Box, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+} from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
-import MuiDrawer from '@mui/material/Drawer';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import MuiAppBar from '@mui/material/AppBar';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
-import PaymentIcon from '@mui/icons-material/Payment';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -20,11 +18,6 @@ import { useNavigate } from 'react-router-dom';
 import ViewContext from '../context/View'
 import TemaContext, { lightTheme, darkTheme } from '../context/Tema';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import StoreIcon from '@mui/icons-material/Store';
-import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService';
-import KitchenIcon from '@mui/icons-material/Kitchen';
-import CheckroomIcon from '@mui/icons-material/Checkroom';
-import BookIcon from '@mui/icons-material/Book';
 import ProductContext from '../context/Products';
 import CircleIcon from '@mui/icons-material/Circle';
 
@@ -109,7 +102,7 @@ const images = [
 const ImageButton = styled('button')(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  height: '160px', 
+  height: '160px',
   margin: '8px',
   display: 'flex',
   justifyContent: 'center',
@@ -176,7 +169,7 @@ const ImageMarked = styled('div')({
 
 const ResponsiveBox = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(5, 1fr)', 
+  gridTemplateColumns: 'repeat(5, 1fr)',
   gap: '16px',
   justifyContent: 'center',
   alignItems: 'center',
@@ -186,86 +179,20 @@ const ResponsiveBox = styled(Box)(({ theme }) => ({
     gridTemplateColumns: 'repeat(2, 1fr)',
   },
   [theme.breakpoints.between('sm', 'md')]: {
-    gridTemplateColumns: 'repeat(3, 1fr)', 
+    gridTemplateColumns: 'repeat(3, 1fr)',
   },
   [theme.breakpoints.between('md', 'lg')]: {
-    gridTemplateColumns: 'repeat(4, 1fr)', 
+    gridTemplateColumns: 'repeat(4, 1fr)',
   },
   [theme.breakpoints.up('lg')]: {
-    gridTemplateColumns: 'repeat(5, 1fr)', 
+    gridTemplateColumns: 'repeat(5, 1fr)',
   },
 }));
 
 
-const drawerWidth = 240; 
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-});
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  
-}));
-const StyledAppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#37474f', 
-}));
-
-const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': {
-        ...closedMixin(theme),
-        marginTop: '40px', // AppBar ve Drawer arasındaki mesafeyi ayarlayın
-      },
-    }),
-  }),
-);
 
 export const AnaEkran = () => {
-  const {setActiveCategory } = useContext(ProductContext);
+  const { setActiveCategory } = useContext(ProductContext);
   const {
     isOpen,
     version,
@@ -278,23 +205,24 @@ export const AnaEkran = () => {
     fetchDurum,
     durumData,
     handleControl,
-    dialogOpen,handleCloseDialog
+    dialogOpen, handleCloseDialog,DrawerHeader, StyledAppBar, StyledDrawer
   } = useContext(ViewContext);
+
   const navigate = useNavigate();
- 
+
   useEffect(() => {
     fetchVersionFromMockService();
     fetchUserData();
     fetchDurum();
   }, []);
 
-  const { theme } = useContext(TemaContext);
+  const { theme, backgroundColor } = useContext(TemaContext);
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
   const muiTheme = useTheme();
 
   const handleCategoryClick = (category) => {
     if (handleControl()) {
-     
+
       setActiveCategory(category);
       navigate('/products');
     }
@@ -308,124 +236,140 @@ export const AnaEkran = () => {
   };
 
   const MainContent = styled(Box)(({ theme }) => ({
-    flexGrow: 1, 
+    flexGrow: 1,
     padding: theme.spacing(3),
-    marginTop: '72px',       
+    marginTop: '72px',
   }));
 
   return (
     <MuiThemeProvider theme={currentTheme}>
       <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
-      <StyledAppBar position="fixed" open={isOpen}>
-    <Toolbar>
-      <IconButton
-        color="inherit"
-        aria-label="open drawer"
-        onClick={handleDrawerOpen}
-        edge="start"
-        sx={{
-          marginRight: 2,
-          ...(isOpen && { display: 'none' }),
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-      <Typography
-        variant="h6"
-        noWrap
-        component="div"
-        sx={{
-          flexGrow: 1,
-          textAlign: 'center',
-          color: 'primary.contrastText',
-        }}
-      >
-        32 Bit
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Card
-          sx={{
-            minWidth: 180,
-            height: 100,
-            backgroundColor: '#f0f0f0',
-            borderRadius: 8,
-            margin: 1,
-            boxShadow: 3,
-            padding: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <CardContent>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ display: 'flex', alignItems: 'center' }}
+        <StyledAppBar position="fixed" open={isOpen}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{
+                marginRight: 2,
+                ...(isOpen && { display: 'none' }),
+              }}
             >
-              <CircleIcon
-                sx={{ fontSize: 14, marginRight: 1 }}
-                color={durumData === 'Çevrim içi' ? 'success' : 'error'}
-              />
-              {durumData}
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                flexGrow: 1,
+                textAlign: 'center',
+                color: 'primary.contrastText',
+              }}
+            >
+              32 Bit
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ marginTop: 1 }}>
-              Version: {version}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ marginTop: 1 }}>
-              Kullanıcı Kodu: {userData}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
-    </Toolbar>
-  </StyledAppBar>
-        <StyledDrawer variant="permanent" open={isOpen} marginTop='80px'>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Card
+                sx={{
+                  minWidth: 180,
+                  height: 100,
+                  backgroundColor: '#f0f0f0',
+                  borderRadius: 8,
+                  margin: 1,
+                  boxShadow: 3,
+                  padding: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  backgroundColor: theme === 'light' ? backgroundColor : '#333',
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <CircleIcon
+                      sx={{ fontSize: 14, marginRight: 1 }}
+                      color={durumData === 'Çevrim içi' ? 'success' : 'error'}
+                    />
+                    {durumData}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ marginTop: 1 }}>
+                    Version: {version}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ marginTop: 1 }}>
+                    Kullanıcı Kodu: {userData}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          </Toolbar>
+        </StyledAppBar>
+        <StyledDrawer variant="permanent" open={isOpen}>
           <DrawerHeader>
             <IconButton onClick={handleDrawerClose}>
-              {muiTheme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </IconButton>
           </DrawerHeader>
           <Divider />
-          <List >
-            {['Anasayfa', 'Ödeme', 'Satış','Ayarlar'].map((text, index) => (
+          <List>
+            {['Anasayfa', 'Satış'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton
                   onClick={() => {
                     if (text === 'Anasayfa') {
                       handleNavigation('/AnaEkran');
-                    } else if (text === 'Ödeme') {
-                      handleNavigation('/PaymentScreen');
                     } else if (text === 'Satış') {
                       handleNavigation('/SaleScreen');
-                    }else if (text === 'Ayarlar') {
-                      handleNavigation('/Settings');
                     }
-
-                  }} 
+                  }}
                   sx={{
                     '&:hover': {
                       backgroundColor: '#616161',
                     },
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    height: '56px',
                   }}
                 >
                   <ListItemIcon>
-                    {text === 'Anasayfa' ? <HomeIcon /> : text === 'Ödeme' ? <PaymentIcon /> : text === 'Satış' ? <PointOfSaleIcon /> : <SettingsIcon/>}
+                    {text === 'Anasayfa' ? <HomeIcon /> : <PointOfSaleIcon />}
                   </ListItemIcon>
                   <ListItemText primary={text} />
                 </ListItemButton>
               </ListItem>
             ))}
-            
           </List>
-          <ListItem disablePadding sx={{ position: 'absolute', bottom: 0 }}>
-            <ListItemButton onClick={handleLogout} sx={{ '&:hover': { backgroundColor: '#616161' } }}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Çıkış Yap" />
-            </ListItemButton>
-          </ListItem>
+          <Box sx={{ flexGrow: 1 }} />
+          <List>
+            <ListItem key="settings" disablePadding>
+              <ListItemButton
+                onClick={() => navigate('/Settings')}
+                sx={{ '&:hover': { backgroundColor: '#616161' } }}
+              >
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Ayarlar" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="logout" disablePadding>
+              <ListItemButton
+                onClick={handleLogout}
+                sx={{ '&:hover': { backgroundColor: '#616161' } }}
+              >
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Çıkış Yap" />
+              </ListItemButton>
+            </ListItem>
+          </List>
         </StyledDrawer>
 
         <Dialog open={dialogOpen} onClose={handleCloseDialog}>
@@ -443,37 +387,37 @@ export const AnaEkran = () => {
         </Dialog>
 
         <MainContent>
-        <ResponsiveBox>
-      {images.map((image) => (
-        <ImageButton
-          key={image.title}
-          onClick={() => handleCategoryClick(image.title)}
-        >
-          <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
-          <ImageBackdrop />
-          <Image>
-            <Typography
-              component="span"
-              variant="subtitle1"
-              color="inherit"
-              sx={{
-                position: 'relative',
-                p: 2,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                borderRadius: '4px',
-                textAlign: 'center',
-                width: '100%',
-              }}
-            >
-              {image.title}
-              <ImageMarked className="MuiImageMarked-root" />
-            </Typography>
-          </Image>
-        </ImageButton>
-      ))}
-    </ResponsiveBox>
-    </MainContent>
-    
+          <ResponsiveBox>
+            {images.map((image) => (
+              <ImageButton
+                key={image.title}
+                onClick={() => handleCategoryClick(image.title)}
+              >
+                <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+                <ImageBackdrop />
+                <Image>
+                  <Typography
+                    component="span"
+                    variant="subtitle1"
+                    color="inherit"
+                    sx={{
+                      position: 'relative',
+                      p: 2,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      borderRadius: '4px',
+                      textAlign: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    {image.title}
+                    <ImageMarked className="MuiImageMarked-root" />
+                  </Typography>
+                </Image>
+              </ImageButton>
+            ))}
+          </ResponsiveBox>
+        </MainContent>
+
       </Box>
     </MuiThemeProvider>
   );

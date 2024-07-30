@@ -1,6 +1,6 @@
 
-import React, { createContext, useState, useContext } from 'react';
-import { createTheme } from '@mui/material/styles';
+import React, { createContext, useState } from 'react';
+import { createTheme } from '@mui/material/styles'; 
 
 const TemaContext = createContext({
     backgroundColor: '#B0BEC5',
@@ -30,7 +30,7 @@ export const TemaProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
   const [backgroundColor, setBackgroundColor] = useState('#B0BEC5');
 
-const toggleTheme = () => {
+const toggleTheme = () => { 
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
   const setBackgroudColor = (color) => {

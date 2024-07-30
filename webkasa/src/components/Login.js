@@ -4,8 +4,6 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import ReactDOM from "react-dom";
-import { worker } from '../mocks/browser';
 import 'react-simple-keyboard/build/css/index.css';
 import Keyboard from "react-simple-keyboard";
 import turkishLayout from "simple-keyboard-layouts/build/layouts/turkish";
@@ -30,14 +28,15 @@ export const Login = () => {
   const { theme } = useContext(TemaContext);
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
 
+
+
   useEffect(() => {
-    worker.start().then(() => {
-      fetch('/version')
-        .then(response => response.json())
-        .then(data => setVersion(data.version));
-    });
-    return () => worker.stop();
+    fetch('/version')
+      .then(response => response.json())
+      .then(data => setVersion(data.version));
   }, []);
+
+
 
   const loginekran = async () => {
     setIsLoading(true);
@@ -70,10 +69,7 @@ export const Login = () => {
     setLanguage(event.target.value);
   };
 
-  const handleShift = () => {
-    const newLayoutName = layout === "default" ? "shift" : "default";
-    setLayout(newLayoutName);
-  };
+
 
   const onInputKeyPress = (button) => {
     if (button === "{enter}") {
@@ -142,12 +138,12 @@ export const Login = () => {
           bgcolor: 'background.default',
           color: theme === 'dark' ? 'white' : 'black',
           height: '100vh',
-          width: '100vw', 
-          padding: 0, 
+          width: '100vw',
+          padding: 0,
           overflow: 'hidden',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center' 
+          alignItems: 'center'
         }}
       >
         <Grid container sx={{ height: '100%', width: '100%', minHeight: '100vh', minWidth: '100vw' }}>
@@ -209,7 +205,7 @@ export const Login = () => {
                     layoutName={layoutName}
                     onChange={(input) => setInput(input)}
                     onKeyPress={onInputKeyPress}
-                    {...getKeyboardLayout()}      
+                    {...getKeyboardLayout()}
                   />
                 </DialogContent>
               </Dialog>
@@ -316,5 +312,4 @@ export const Login = () => {
   );
 };
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(<Login />, rootElement);
+
