@@ -71,7 +71,7 @@ The required software for using the project and how to install them are given be
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-![Giriş Ekranı](GirişEkranı.png)
+![Login](webkasa/images/Login.png)
 
 ### Login Screen
 - Enter user code and password. Displays an error message if the login is incorrect.
@@ -80,7 +80,7 @@ The required software for using the project and how to install them are given be
 
 
   
-![Anasayfa](Anasayfa.png)
+![Anasayfa](webkasa/images/AnaEkran.png)
 
 ### Homepage
 - Directly navigate to the desired category of products from the homepage.
@@ -88,7 +88,7 @@ The required software for using the project and how to install them are given be
 
 
   
-![Ürün Sayfası](ÜrünSayfası.png)
+![Ürün Sayfası](webkasa/images/Products.png)
 ### Product Page
 - Lists 1000 products using infinite scroll.
 - Product information is randomly generated using the Faker library and categorized in MSW.
@@ -96,7 +96,7 @@ The required software for using the project and how to install them are given be
 
 
   
-![Satış Ekranı](SatışEkranı.png)
+![Satış Ekranı](webkasa/images/SaleScreen.png)
 
 ### Sales Screen
 - The cart contains a barcode input, a category screen, buttons for operations on the cart, and a keyboard for changing quantities.
@@ -109,7 +109,7 @@ The required software for using the project and how to install them are given be
 
 
   
-![Ödeme Ekran](ÖdemeEkran.png)
+![Ödeme Ekran](webkasa/images/PaymentScreen.png)
 
 ### Payment Screen
 - On the payment screen, select a payment option and enter the amount given by the user using the keyboard.
@@ -117,7 +117,9 @@ The required software for using the project and how to install them are given be
 - An e-invoice is sent to the entered email address.
 
 
-
+![Ayarlar Ekran](webkasa/images/Settings.png)
+### Settings Ekranı
+- Theme change is made on the settings screen.
 
 
 
