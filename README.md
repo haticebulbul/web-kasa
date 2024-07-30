@@ -40,8 +40,6 @@ Bu proje, bir web tabanlı kasa uygulamasıdır. Uygulama, çeşitli satış ve 
 * [![Faker.js][Faker.js]][Faker-url] - Versiyon: ^8.4.1
 * [![Axios][Axios.js]][Axios-url] - Versiyon: ^1.7.2
 * [![i18next][i18next.js]][i18next-url] - Versiyon: ^23.11.5
-* [![i18next Browser Language Detector][i18next-BLD.js]][i18next-BLD-url] - Versiyon: ^8.0.0
-* [![React i18next][React-i18next.js]][React-i18next-url] - Versiyon: ^14.1.2
 * [![React Infinite Scroll Component][React-Infinite-Scroll-Component.js]][React-Infinite-Scroll-Component-url] - Versiyon: ^6.1.0
 * [![React Simple Keyboard][React-Simple-Keyboard.js]][React-Simple-Keyboard-url] - Versiyon: ^3.7.118
 * [![React To Print][React-To-Print.js]][React-To-Print-url] - Versiyon: ^2.15.1
@@ -88,26 +86,26 @@ Projeyi kullanmak için gereken yazılımlar ve bunları nasıl kurabileceğiniz
 
 <!-- USAGE EXAMPLES -->
 ## Kullanım
-![Giriş Ekranı](GirişEkranı.png)
+![Login](webkasa/images/Login.png)
 ### Giriş Ekranı
 - Kullanıcı kodu ve şifre girişi yapılır. Yanlış girişte hata mesajı verir.
 - Bilgiler, sanal klavyeyle de sağlanabilir. Klavye İngilizce ve Türkçe dillerine sahip çift dil desteklidir.
 - Sürüm bilgisi MSW'den alınır.
 
-  
-![Anasayfa](Anasayfa.png)
+ 
+![Anasayfa](webkasa/images/AnaEkran.png)
 ### Anasayfa
 - Anasayfadan direkt istenilen kategorideki ürünlere gidilir.
 - Ürün bilgileri, Faker kütüphanesi ile MSW'de rastgele oluşturulup kategorilere göre ayrılmıştır.
 
   
-![Ürün Sayfası](ÜrünSayfası.png)
+![Ürün Sayfası](webkasa/images/Products.png)
 ### Ürün Ekranı
 - Infinite scroll mantığıyla 1000 ürün listelenir.
 - Ürünler, "Ekle" butonuyla satış ekranındaki sepete eklenir.
 
   
-![Satış Ekranı](SatışEkranı.png)
+![Satış Ekranı](webkasa/images/SaleScreen.png)
 ### Satış Ekranı
 - Sepet, barkod giriş inputu, kategori ekranı ve sepete yapılacak işlemlere sahip butonlar ve miktar değişimini sağlayan klavye içerir.
 - Sepete ürün ekleme barkod okuma veya kategoriden ürün eklemeyle sağlanır.
@@ -117,12 +115,16 @@ Projeyi kullanmak için gereken yazılımlar ve bunları nasıl kurabileceğiniz
 - Satır işlemde tek ürün sepetten silinir.
 
   
-![Ödeme Ekran](ÖdemeEkran.png)
+![Ödeme Ekran](webkasa/images/PaymentScreen.png)
 ### Ödeme Ekranı
 - Ödeme ekranında ödeme seçeneği seçilir ve klavyeden kullanıcı tarafından verilen miktar girilir.
 - Ödemeyi tamamla butonuna basıldığında ödeme işlemi tamamlanır ve sepetin fişi oluşturulur.
 - E-fatura, girilen e-posta adresine gönderilir.
 
+
+![Ayarlar Ekran](webkasa/images/Settings.png)
+### Ayarlar Ekranı
+- Ayarlar ekranında tema değişimi yapılır.
 
 
 
