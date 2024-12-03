@@ -137,6 +137,7 @@ Hatice Bülbül - [@Linkedin](www.linkedin.com/in/haticebülbül) - Hatice0bulbu
 Project Link: [https://github.com/haticebulbul/web-kasa.git](https://github.com/haticebulbul/web-kasa.git)
 
 
+<a href="https://github.com/haticebulbul"><img width="60px" alt="AltuDev" src="https://github.com/haticebulbul.png"/></a>
 
 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
